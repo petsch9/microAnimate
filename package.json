@@ -1,0 +1,31 @@
+{
+  "name": "microanimate",
+  "version": "1.2.7",
+  "description": "a very tiny library for JS-animations",
+  "main": "microAnimate.js",
+  "scripts": {
+    "test": "Animate(selector,context)"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TheBinaryBee/microAnimate.git"
+  },
+  "keywords": [
+    "dom",
+    "micro"
+  ],
+  "author": "Felix Rilling",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TheBinaryBee/microAnimate/issues"
+  },
+  "homepage": "https://github.com/TheBinaryBee/microAnimate#readme",
+  "devDependencies": {
+    "babel-preset-es2015": "^6.3.13",
+    "grunt": "^0.4.5",
+    "grunt-babel": "^6.0.0",
+    "grunt-contrib-copy": "^0.8.2",
+    "grunt-contrib-jshint": "^0.11.3",
+    "grunt-contrib-uglify": "^0.11.0"
+  }
+}
