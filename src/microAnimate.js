@@ -63,6 +63,7 @@
       duration: 2000,
       ticklength: 30,
       smoothing: true,
+      ease: false,
       callbackTolerance: 2.5
     }) {
 
@@ -74,57 +75,138 @@
   var Anim = function(element, animation, options) {
     //Clone Arguments to Anim
     this.element = element,
-      this.animation = prepareObject(animation),
       this.opt = options,
       this.opt.totalTicks = options.duration / options.ticklength,
-      this.interval = window.setInterval(function() {}, 1000),
-      this.animMap = mapAnimation(this.animation, this.opt.totalTicks),
-      this.callbacks = mapCallbacks(this.animation, this.opt.totalTicks);
+      this.animation = processAnimation(prepareObject(animation), this.opt),
+      this.interval = window.setInterval(function() {}, Infinity);
 
-    if (this.opt.smoothing) {
-      this.transition = generateSmoothing(this.animMap);
+    /*The Animation get calculated before it gets executed for better performance
+    * Result looks like this:
+
+    {
+      0: {
+        style: [
+          ["width", "100px"],
+          ["color", "red"]
+        ]
+        transition: ["width 2s", "color 2s"]
+        callback: callback1()
+      },
+      20: {
+        style: [
+          ["width", "20px"],
+          ["color", "blue"]
+        ]
+        transition: ["width 6s", "color 6s"]
+        callback: callback2()
+      },
+      100: {
+        style: [
+          ["width", "400px"],
+          ["color", "gree"]
+        ]
+        transition: []
+        callback: callback3()
+      }
     }
 
-
-
-
-    //The Animation get calculated before it gets executed for better performance
-    //Creates Array with the styles
-    /*Output example:
-
-    animMap = [
-      ["width", ["0px", "1px", "2px"]],
-      ["color", ["#ffffff", "#eeeeee", "#dddddd"]],
-    ]
-
     */
+
+
+    //Generate Style, Transition and Callbacks from the animation property
+    function processAnimation(animation, options) {
+
+
+
+
+
     function mapAnimation(animation) {
       //Prepare Animation given
       var obj = animation,
-        animMap = [],
         mappedProperties = [],
-        lastIndex = 0;
+        mappedValuesPre = rawAnimData(obj, mappedProperties),
+        mappedValues = processAnim(mappedValuesPre, mappedValuesPre),
+        animMap = [mappedProperties, mappedValues];
 
-      //Go from 0% to 100%
-      for (var i = 0; i <= 100; i++) {
-        //Check the latest given timestamp
-        if (typeof obj[i] !== "undefined") {
-          lastIndex = i;
+      //console.log(animMap);
+      //return animMap;
+
+
+
+      //Maps animation from human-readable format to machine format
+      function rawAnimData(animation, mappedProperties) {
+        var values = [];
+        //Go from 0% to 100%
+        Object.keys(animation).forEach(function(percentage) {
+          //Go over each property
+          animation[percentage].forEach(function(property) {
+            //console.log(obj[value][index_2]);
+
+            //Check if were not accidently the callback
+            if (typeof property === "object") {
+              if (mappedProperties.indexOf(property[0]) === -1) {
+                //Map for checking future properties
+                mappedProperties.push(property[0]);
+                //console.log("new Mapping");
+                //Create subarray for the properties
+                values[
+                  mappedProperties.indexOf(property[0])
+                ] = [];
+              }
+
+              //push values to prop array for the current property
+              values[
+                mappedProperties.indexOf(property[0])
+              ].push([percentage, property[1]]);
+
+              //console.log(property[0] + ": " + percentage + " " + property[1]);
+            }
+          });
+
+        });
+
+        return values;
+      }
+
+      //Create values for the Animation
+      function processAnim(prop, val) {
+        var result = [];
+
+        prop.forEach(function(currentProp, index) {
+          //console.log(val[index]);
+          console.log(currentProp);
+          ease(
+            val[index],
+            getType(currentProp)
+
+          );
+        });
+
+        function ease(val, type) {
+          if (type === "number") {
+            console.log(val);
+          } else {
+            console.log("Not a numbeeeeeeeeeeeeeee");
+          }
         }
 
-        //Map each property of the current timestamp
-        obj[lastIndex].forEach(insertMap);
+        //Check if the property is a number, color or something else
+        function getType(val) {
+          var type = "",
+            testForNumbers = new RegExp("[0-9.]+", "g");
 
+
+          if (testForNumbers.test(val)) {
+            type = "number";
+          } else {
+            type = "unkown";
+          }
+          return type;
+        }
       }
-      console.log(animMap);
-
-      return animMap;
 
 
-
-
-
-      function insertMap(value, index) {
+      /*function insertMap(value, index, frame) {
         //Make sure the callbacks dont get mapped
         if (typeof value !== "function") {
 
@@ -140,27 +222,34 @@
           }
           //Else push the value
           else {
-            var prop = value[0],
-              val = value[1],
-              type=propertyType(prop,val);
-
+            var style = calculateFrame(value[0], value[1], frame);
             //Acess the animMap by looking up the index in the mappedProperties Array and hoping its the same
-            animMap[mappedProperties.indexOf(value[0])][1].push(value[1]);
+            animMap[mappedProperties.indexOf(value[0])][1].push(style);
           }
         }
 
-        //Check if a property can be animated
-        function propertyType(property) {
-          var result,
-          testPx=new RegExp("[0-9]+px");
+        //Get the css value of the current frame
+        function calculateFrame(property, value, nextValue, frame) {
+          if (containsNumbers(value)) {
+            console.log("Number!");
+          } else {
+            console.log("Word!");
+          }
+
+
+          //Check if the property is animatable
+          function containsNumbers(property) {
+            var testForNumbers = new RegExp("[0-9.]+", "g");
+
+            if (testForNumbers.test(property)) {
+              return true;
+            } else {
+              return false;
+            }
+          }
         }
-      }
-
-
+      }*/
     }
-
-
-
 
 
 
@@ -181,7 +270,10 @@
     }
 
 
+        }
+
     //Sort and format Animation object
+    //Converts "from" to "0" and "to" to "100", converts "100" to 100
     function prepareObject(object) {
       var keys = Object.keys(object),
         optimizedKeys = [],
@@ -207,13 +299,10 @@
       optimizedKeys.sort();
 
 
-
       //Sort Object
       optimizedKeys.forEach(function(keyName) {
         result[keyName] = object[keyName + "%"];
       });
-
-
 
       return result;
     }
@@ -225,6 +314,7 @@
       //console.log(val.join(", "));
       return val.join(", ");
     }
+
 
   };
 

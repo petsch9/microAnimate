@@ -1,5 +1,7 @@
 "use strict";
 
+function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+
 (function (window) {
   /*
   *
@@ -78,52 +80,112 @@
     function mapAnimation(animation) {
       //Prepare Animation given
       var obj = animation,
-          animMap = [],
           mappedProperties = [],
-          lastIndex = 0;
+          mappedValuesPre = rawAnimData(obj, mappedProperties),
+          mappedValues = processAnim(mappedValuesPre, mappedValuesPre),
+          animMap = [mappedProperties, mappedValues];
 
-      //Go from 0% to 100%
-      for (var i = 0; i <= 100; i++) {
-        //Check the latest given timestamp
-        if (typeof obj[i] !== "undefined") {
-          lastIndex = i;
+      //console.log(animMap);
+      //return animMap;
+
+      //Maps animation from human-readable format to machine format
+      function rawAnimData(animation, mappedProperties) {
+        var values = [];
+        //Go from 0% to 100%
+        Object.keys(animation).forEach(function (percentage) {
+          //Go over each property
+          animation[percentage].forEach(function (property) {
+            //console.log(obj[value][index_2]);
+
+            //Check if were not accidently the callback
+            if ((typeof property === "undefined" ? "undefined" : _typeof(property)) === "object") {
+              if (mappedProperties.indexOf(property[0]) === -1) {
+                //Map for checking future properties
+                mappedProperties.push(property[0]);
+                //console.log("new Mapping");
+                //Create subarray for the properties
+                values[mappedProperties.indexOf(property[0])] = [];
+              }
+
+              //push values to prop array for the current property
+              values[mappedProperties.indexOf(property[0])].push([percentage, property[1]]);
+
+              //console.log(property[0] + ": " + percentage + " " + property[1]);
+            }
+          });
+        });
+
+        return values;
+      }
+
+      //Create values for the Animation
+      function processAnim(prop, val) {
+        var result = [];
+
+        prop.forEach(function (currentProp, index) {
+          //console.log(val[index]);
+          ease(val[index], getType(currentProp));
+        });
+
+        function ease(val, type) {
+          if (type === "number") {
+            console.log(val);
+          } else {
+            console.log("Not a numbeeeeeeeeeeeeeee");
+          }
         }
 
-        //Map each property of the current timestamp
-        obj[lastIndex].forEach(insertMap);
+        //Check if the property is a number, color or something else
+        function getType(val) {
+          var type = "",
+              testForNumbers = new RegExp("[0-9.]+", "g");
+
+          if (testForNumbers.test(val)) {
+            type = "number";
+          } else {
+            type = "unkown";
+          }
+          return type;
+        }
       }
-      console.log(animMap);
 
-      return animMap;
-
-      function insertMap(value, index) {
+      /*function insertMap(value, index, frame) {
         //Make sure the callbacks dont get mapped
         if (typeof value !== "function") {
-
-          //Check if there already is a mapping for this property
+           //Check if there already is a mapping for this property
           if (mappedProperties.indexOf(value[0]) === -1) {
             //Map for checking future properties
             mappedProperties.push(value[0]);
             //init the property in the animMap Array
-            animMap.push([value[0], [value[1]]]);
-          }
+            animMap.push([value[0],
+              [value[1]]
+            ]);
+           }
           //Else push the value
           else {
-              var prop = value[0],
-                  val = value[1],
-                  type = propertyType(prop, val);
-
-              //Acess the animMap by looking up the index in the mappedProperties Array and hoping its the same
-              animMap[mappedProperties.indexOf(value[0])][1].push(value[1]);
+            var style = calculateFrame(value[0], value[1], frame);
+            //Acess the animMap by looking up the index in the mappedProperties Array and hoping its the same
+            animMap[mappedProperties.indexOf(value[0])][1].push(style);
+          }
+        }
+         //Get the css value of the current frame
+        function calculateFrame(property, value, nextValue, frame) {
+          if (containsNumbers(value)) {
+            console.log("Number!");
+          } else {
+            console.log("Word!");
+          }
+            //Check if the property is animatable
+          function containsNumbers(property) {
+            var testForNumbers = new RegExp("[0-9.]+", "g");
+             if (testForNumbers.test(property)) {
+              return true;
+            } else {
+              return false;
             }
+          }
         }
-
-        //Check if a property can be animated
-        function propertyType(property) {
-          var result,
-              testPx = new RegExp("[0-9]+px");
-        }
-      }
+      }*/
     }
 
     //Push Callbacks into Array
