@@ -6,10 +6,17 @@ module.exports = function(grunt) {
       options: {}
     },
     uglify: {
+      options: {
+        compress: {
+          drop_console: true,
+          screw_ie8: true
+        }
+      },
       my_target: {
         files: {
-          'dist/microAnimate.min.js': 'dist/microAnimate.js'/*,
-          'dist/microAnimate-es5.min.js': 'src/microAnimate-es5.js'*/
+          'dist/microAnimate.min.js': 'dist/microAnimate.js'
+            /*,
+                      'dist/microAnimate-es5.min.js': 'src/microAnimate-es5.js'*/
         }
       },
     },

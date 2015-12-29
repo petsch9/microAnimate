@@ -41,7 +41,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
     var element = arguments.length <= 0 || arguments[0] === undefined ? document.body : arguments[0];
     var animation = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
     var options = arguments.length <= 2 || arguments[2] === undefined ? {
-      duration: 3000,
+      duration: 2000,
       ticklength: 30,
       smoothing: true,
       ease: false
@@ -52,7 +52,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
   var Anim = function Anim(element, animation, options) {
     //Clone Arguments to Anim
-    this.element = element, this.options = options, this.options.totalTicks = options.duration / options.ticklength, this.animation = processAnimation(prepareObject(animation), this.options), this.interval = window.setInterval(function () {}, Infinity);
+    this.element = element, this.options = options, this.options.totalTicks = options.duration / options.ticklength, this.animation = processAnimation(prepareObject(animation), this.options), this.interval = null;
 
     if (this.options.totalTicks % 10 !== 0) {
       console.info("The ticklength you provided(" + options.ticklength + ") doesn't fit into the duration " + options.duration);
@@ -151,9 +151,13 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
           //Additional transition values, "ease" for example
           add = "";
 
-          //Ease if easing is enabled
-          if (options.ease) {
-            add = "ease";
+          //Ease if easing is enabled (either default or given easing)
+          if (options.ease === true || typeof options.ease === "string") {
+            if (typeof options.ease === "string") {
+              add = options.ease;
+            } else {
+              add = "ease";
+            }
           }
 
           animation[allKeys[index]].forEach(function (style, i) {
@@ -294,7 +298,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
     //Check if any callbacks need to be run
     function callback(callbacks, target) {
-      if (finishedCallbacks.indexOf(callbacks) === -1) {
+      if (typeof callbacks === "function" && finishedCallbacks.indexOf(callbacks) === -1) {
         callbacks(target);
         finishedCallbacks.push(callbacks);
       }

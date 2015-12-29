@@ -35,13 +35,16 @@
   *
   */
 
-  function microAnimate(element = document.body, animation = {},
+  function microAnimate(
+    element = document.body,
+    animation = {},
     options = {
-      duration: 3000,
+      duration: 2000,
       ticklength: 30,
       smoothing: true,
       ease: false
-    }) {
+    }
+  ) {
 
 
     return new Anim(element, animation, options);
@@ -54,7 +57,7 @@
       this.options = options,
       this.options.totalTicks = options.duration / options.ticklength,
       this.animation = processAnimation(prepareObject(animation), this.options),
-      this.interval = window.setInterval(function() {}, Infinity);
+      this.interval = null;
 
     if (this.options.totalTicks % 10 !== 0) {
       console.info("The ticklength you provided(" + options.ticklength + ") doesn't fit into the duration " + options.duration);
@@ -159,9 +162,13 @@
             add = "";
 
 
-          //Ease if easing is enabled
-          if (options.ease) {
-            add = "ease";
+          //Ease if easing is enabled (either default or given easing)
+          if (options.ease === true || typeof options.ease === "string") {
+            if (typeof options.ease === "string") {
+              add = options.ease;
+            } else {
+              add = "ease";
+            }
           }
 
 
@@ -323,7 +330,7 @@
 
     //Check if any callbacks need to be run
     function callback(callbacks, target) {
-      if (finishedCallbacks.indexOf(callbacks) === -1) {
+      if (typeof callbacks === "function" && finishedCallbacks.indexOf(callbacks) === -1) {
         callbacks(target);
         finishedCallbacks.push(callbacks);
       }

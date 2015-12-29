@@ -1,10 +1,10 @@
 {
   "name": "microanimate",
-  "version": "1.2.7",
+  "version": "0.4.1",
   "description": "a very tiny library for JS-animations",
   "main": "microAnimate.js",
   "scripts": {
-    "test": "Animate(selector,context)"
+    "test": "Anim(element,animation,options)"
   },
   "repository": {
     "type": "git",
