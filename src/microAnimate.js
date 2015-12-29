@@ -35,35 +35,12 @@
   *
   */
 
-  function microAnimate(element = document.body, animation = {
-      "0%": [
-        ["width", "200px"],
-        ["color", "transparent"],
-        function() {
-          console.log("callback 1");
-        }
-      ],
-      "20%": [
-        ["width", "100px"],
-        ["color", "white"],
-        function() {
-          console.log("callback 2");
-        }
-      ],
-      "100%": [
-        ["width", "60px"],
-        ["color", "red"],
-        function() {
-          console.log("callback 3");
-        }
-      ]
-    },
+  function microAnimate(element = document.body, animation = {},
     options = {
-      duration: 2000,
+      duration: 3000,
       ticklength: 30,
       smoothing: true,
-      ease: true,
-      //callbackTolerance: 2.5
+      ease: true
     }) {
 
 

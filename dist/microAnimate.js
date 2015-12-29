@@ -37,26 +37,15 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
    *
   */
 
-  function microAnimate()
-  //callbackTolerance: 2.5
-  {
+  function microAnimate() {
     var element = arguments.length <= 0 || arguments[0] === undefined ? document.body : arguments[0];
-    var animation = arguments.length <= 1 || arguments[1] === undefined ? {
-      "0%": [["width", "200px"], ["color", "transparent"], function () {
-        console.log("callback 1");
-      }],
-      "20%": [["width", "100px"], ["color", "white"], function () {
-        console.log("callback 2");
-      }],
-      "100%": [["width", "60px"], ["color", "red"], function () {
-        console.log("callback 3");
-      }]
-    } : arguments[1];
+    var animation = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
     var options = arguments.length <= 2 || arguments[2] === undefined ? {
-      duration: 2000,
+      duration: 3000,
       ticklength: 30,
       smoothing: true,
-      ease: true } : arguments[2];
+      ease: true
+    } : arguments[2];
 
     return new Anim(element, animation, options);
   }
