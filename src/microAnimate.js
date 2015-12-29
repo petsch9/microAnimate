@@ -56,6 +56,11 @@
       this.animation = processAnimation(prepareObject(animation), this.options),
       this.interval = window.setInterval(function() {}, Infinity);
 
+    if (this.options.totalTicks % 10 !== 0) {
+      console.info("The ticklength you provided(" + options.ticklength + ") doesn't fit into the duration " + options.duration);
+      console.info("This might cause issues, but you should be fine");
+      console.info("To avoid this make sure the duration is a multiple of the ticklength");
+    }
 
 
     /*The Animation get calculated before it gets executed for better performance
@@ -151,7 +156,7 @@
             //Time between the current and the next key
             timeDifference = options.totalTicks / (allKeys[index + 1] - allKeys[index]) + "s",
             //Additional transition values, "ease" for example
-            add;
+            add = "";
 
 
           //Ease if easing is enabled
@@ -251,7 +256,9 @@
     var ticker = 0,
       relativePercentage = 0,
       //Cache variables that wouldnt be available to the loop otherwise
-      self = this;
+      self = this,
+      //All executed callbacks are index to make sure callbacks dont execute twice
+      finishedCallbacks = [];
 
 
     //Set to first frame before starting to avoid glitching
@@ -266,7 +273,7 @@
       if (relativePercentage > 100) {
         relativePercentage = 100;
       }
-      console.log(relativePercentage);
+      console.log("Animation Progress: " + relativePercentage + "%");
 
 
       //Animate if there is data for the current percentage
@@ -299,10 +306,12 @@
     //Apply all styles for the current Frame
     function animate(element, styles) {
       //forEach has sucky performance, we shouldnt use it in the loop
-      styles.forEach(function(val, index) {
+      /*styles.forEach(function(val, index) {
         element.style[val[0]] = val[1];
-      });
-
+      });*/
+      for (var i = 0; i < styles.length; i++) {
+        element.style[styles[i][0]] = styles[i][1];
+      }
     }
 
     //Run Transitions if needed
@@ -314,7 +323,10 @@
 
     //Check if any callbacks need to be run
     function callback(callbacks, target) {
-      callbacks(target);
+      if (finishedCallbacks.indexOf(callbacks) === -1) {
+        callbacks(target);
+        finishedCallbacks.push(callbacks);
+      }
     }
 
 

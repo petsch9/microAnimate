@@ -42,5 +42,5 @@ Usage
         duration: 2000,
         ticklength: 30,
         smoothing: true,
-        ease: true
+        ease: false
       });
