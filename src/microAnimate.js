@@ -1,7 +1,6 @@
 (function(window) {
   /*
-  *
-  Usage:
+  * Usage:
 
   var myAnimation = new Anim(element,{
       "0%": [
@@ -63,8 +62,8 @@
       duration: 2000,
       ticklength: 30,
       smoothing: true,
-      ease: false,
-      callbackTolerance: 2.5
+      ease: true,
+      //callbackTolerance: 2.5
     }) {
 
 
@@ -75,17 +74,19 @@
   var Anim = function(element, animation, options) {
     //Clone Arguments to Anim
     this.element = element,
-      this.opt = options,
-      this.opt.totalTicks = options.duration / options.ticklength,
-      this.animation = processAnimation(prepareObject(animation), this.opt),
+      this.options = options,
+      this.options.totalTicks = options.duration / options.ticklength,
+      this.animation = processAnimation(prepareObject(animation), this.options),
       this.interval = window.setInterval(function() {}, Infinity);
+
+
 
     /*The Animation get calculated before it gets executed for better performance
     * Result looks like this:
 
     {
       0: {
-        style: [
+        styles: [
           ["width", "100px"],
           ["color", "red"]
         ]
@@ -93,7 +94,7 @@
         callback: callback1()
       },
       20: {
-        style: [
+        styles: [
           ["width", "20px"],
           ["color", "blue"]
         ]
@@ -101,7 +102,7 @@
         callback: callback2()
       },
       100: {
-        style: [
+        styles: [
           ["width", "400px"],
           ["color", "gree"]
         ]
@@ -110,170 +111,124 @@
       }
     }
 
+    *
     */
 
 
     //Generate Style, Transition and Callbacks from the animation property
     function processAnimation(animation, options) {
+      var result = {},
+        animKeys = Object.keys(animation);
+
+      //Go over each percentage given
+      animKeys.forEach(function(key, index) {
+        //Generates a new key to fit certain intervals
+        var newKey = dynamicKey(key, options);
+        result[newKey] = {};
+
+        result[newKey].styles = mapAnimation(animation[key]);
+        result[newKey].callback = mapCallback(animation[key]);
+
+        if (options.smoothing) {
+          result[newKey].transition = mapTransition(animation, index, animKeys, options);
+        }
+      });
 
 
+      return result;
 
 
+      /*
+       * Mapping Sub-functions
+       */
 
-    function mapAnimation(animation) {
-      //Prepare Animation given
-      var obj = animation,
-        mappedProperties = [],
-        mappedValuesPre = rawAnimData(obj, mappedProperties),
-        mappedValues = processAnim(mappedValuesPre, mappedValuesPre),
-        animMap = [mappedProperties, mappedValues];
-
-      //console.log(animMap);
-      //return animMap;
-
+      function mapAnimation(animation) {
+        var result = [];
+        animation.forEach(function(style) {
+          if (typeof style === "object") {
+            result.push(style);
+          }
+        });
+        return result;
+      }
 
 
-      //Maps animation from human-readable format to machine format
-      function rawAnimData(animation, mappedProperties) {
-        var values = [];
-        //Go from 0% to 100%
-        Object.keys(animation).forEach(function(percentage) {
-          //Go over each property
-          animation[percentage].forEach(function(property) {
-            //console.log(obj[value][index_2]);
+      function mapCallback(animation) {
+        var result;
+        animation.forEach(function(fn) {
+          if (typeof fn === "function") {
+            result = fn;
+          }
+        });
+        return result;
+      }
 
-            //Check if were not accidently the callback
-            if (typeof property === "object") {
-              if (mappedProperties.indexOf(property[0]) === -1) {
-                //Map for checking future properties
-                mappedProperties.push(property[0]);
-                //console.log("new Mapping");
-                //Create subarray for the properties
-                values[
-                  mappedProperties.indexOf(property[0])
-                ] = [];
+      function mapTransition(animation, index, allKeys, options) {
+        //Only try to create a transition if the Animation isnt finished yet
+        if (allKeys[index] !== "100") {
+
+
+          var result = [],
+            //The next key of the Animation
+            nextAnim = animation[allKeys[index + 1]],
+            //Time between the current and the next key
+            timeDifference = options.totalTicks / (allKeys[index + 1] - allKeys[index]) + "s",
+            //Additional transition values, "ease" for example
+            add;
+
+
+          //Ease if easing is enabled
+          if (options.ease) {
+            add = "ease";
+          }
+
+
+          animation[allKeys[index]].forEach(function(style, i) {
+            if (typeof style === "object") {
+              var trans;
+
+              if (typeof nextAnim !== "undefined") {
+                //Transition String
+                trans = nextAnim[i][0] + " " + timeDifference + " " + add;
+              } else {
+                trans = "";
               }
 
-              //push values to prop array for the current property
-              values[
-                mappedProperties.indexOf(property[0])
-              ].push([percentage, property[1]]);
-
-              //console.log(property[0] + ": " + percentage + " " + property[1]);
+              result.push(trans);
             }
           });
 
-        });
-
-        return values;
+          return result;
+        }
       }
 
-      //Create values for the Animation
-      function processAnim(prop, val) {
-        var result = [];
-
-        prop.forEach(function(currentProp, index) {
-          //console.log(val[index]);
-          console.log(currentProp);
-          ease(
-            val[index],
-            getType(currentProp)
-
+      //Change keys to fit strange intervals
+      function dynamicKey(key, options) {
+        var result;
+        //if Key is Zero, dont change!
+        if (key !== 0) {
+          //Smooth key to fit current interval
+          result = Math.round(
+            Math.round((key / 100) * options.totalTicks) *
+            (100 / options.totalTicks)
           );
-        });
-
-        function ease(val, type) {
-          if (type === "number") {
-            console.log(val);
-          } else {
-            console.log("Not a numbeeeeeeeeeeeeeee");
+          if (result > 100) {
+            result = 100;
           }
         }
-
-        //Check if the property is a number, color or something else
-        function getType(val) {
-          var type = "",
-            testForNumbers = new RegExp("[0-9.]+", "g");
-
-
-          if (testForNumbers.test(val)) {
-            type = "number";
-          } else {
-            type = "unkown";
-          }
-          return type;
-        }
+        return result;
       }
 
-
-      /*function insertMap(value, index, frame) {
-        //Make sure the callbacks dont get mapped
-        if (typeof value !== "function") {
-
-          //Check if there already is a mapping for this property
-          if (mappedProperties.indexOf(value[0]) === -1) {
-            //Map for checking future properties
-            mappedProperties.push(value[0]);
-            //init the property in the animMap Array
-            animMap.push([value[0],
-              [value[1]]
-            ]);
-
-          }
-          //Else push the value
-          else {
-            var style = calculateFrame(value[0], value[1], frame);
-            //Acess the animMap by looking up the index in the mappedProperties Array and hoping its the same
-            animMap[mappedProperties.indexOf(value[0])][1].push(style);
-          }
-        }
-
-        //Get the css value of the current frame
-        function calculateFrame(property, value, nextValue, frame) {
-          if (containsNumbers(value)) {
-            console.log("Number!");
-          } else {
-            console.log("Word!");
-          }
-
-
-          //Check if the property is animatable
-          function containsNumbers(property) {
-            var testForNumbers = new RegExp("[0-9.]+", "g");
-
-            if (testForNumbers.test(property)) {
-              return true;
-            } else {
-              return false;
-            }
-          }
-        }
-      }*/
     }
 
+    /*Sort and format Animation object
+     *
+     * + Converts "from" to "0" and "to" to "100"
+     * + converts "100" to 100
+     * + fixes unreachable percentages
+     *
+     */
 
-
-    //Push Callbacks into Array
-    function mapCallbacks(animation) {
-      var result = [];
-      console.log(animation);
-
-      Object.keys(animation).forEach(function(val) {
-        animation[val].forEach(function(val2) {
-          if (typeof val2 == "function") {
-            result[val] = val2;
-          }
-        });
-      });
-
-      return result;
-    }
-
-
-        }
-
-    //Sort and format Animation object
-    //Converts "from" to "0" and "to" to "100", converts "100" to 100
     function prepareObject(object) {
       var keys = Object.keys(object),
         optimizedKeys = [],
@@ -298,7 +253,6 @@
       });
       optimizedKeys.sort();
 
-
       //Sort Object
       optimizedKeys.forEach(function(keyName) {
         result[keyName] = object[keyName + "%"];
@@ -307,16 +261,12 @@
       return result;
     }
 
-    //Generate CSS transition from map
-    function generateSmoothing(map) {
-      var val = [];
-
-      //console.log(val.join(", "));
-      return val.join(", ");
-    }
-
-
   };
+
+
+  /*
+   * Animation methods
+   */
 
   Anim.prototype.start = function() {
 
@@ -324,68 +274,68 @@
     var ticker = 0,
       relativePercentage = 0,
       //Cache variables that wouldnt be available to the loop otherwise
-      self = this,
-      callbackList = [];
+      self = this;
 
 
-    //Set to first frame before smoothing
-    animate(self.element, self.animMap, 0);
-    //Enable CSS Based Animation Smoothing
-    if (self.opt.smoothing) {
-      self.element.style.transition = self.transition;
-    }
+    //Set to first frame before starting to avoid glitching
+    animate(self.element, self.animation[0].styles);
+    transition(self.element, self.animation[0].transition);
 
 
     //Main Animation Loop
     self.interval = window.setInterval(function() {
-
-      ticker++;
-      relativePercentage = Math.round((100 / self.opt.totalTicks) * ticker);
+      relativePercentage = Math.round((100 / self.options.totalTicks) * ticker);
       //Roof at 100
-      relativePercentage = relativePercentage < 100 | 100;
+      if (relativePercentage > 100) {
+        relativePercentage = 100;
+      }
+      console.log(relativePercentage);
 
-      //Animate
-      animate(self.element, self.animMap, relativePercentage);
+
+      //Animate if there is data for the current percentage
+      if (typeof self.animation[relativePercentage] !== "undefined") {
+        animate(
+          self.element,
+          self.animation[relativePercentage].styles
+        );
+        transition(
+          self.element,
+          self.animation[relativePercentage].transition
+        );
+        callback(
+          self.animation[relativePercentage].callback,
+          self
+        );
+      }
 
       //Remove the interval if over 100% else Animate
-      if (ticker > self.opt.totalTicks) {
+      if (ticker > self.options.totalTicks) {
         killAnim();
       }
 
 
-      //Callback and return list with the ones which were executed
-      callbackList = checkCallbacks(self.callbacks, callbackList, relativePercentage, self.opt.callbackTolerance, self.opt.totalTicks);
-
-
-    }, self.opt.ticklength);
+      ticker++;
+    }, self.options.ticklength);
 
 
 
     //Apply all styles for the current Frame
-    function animate(element, map, percentage) {
-      map.forEach(function(val, index) {
-        if (typeof val[1][percentage] !== "undefined") {
-          console.log(percentage + ": " + val[0] + "=" + val[1][percentage]);
-          element.style[val[0]] = val[1][percentage];
-        }
+    function animate(element, styles) {
+      styles.forEach(function(val, index) {
+        element.style[val[0]] = val[1];
       });
     }
 
-    //Check if any callbacks need to be run
-    function checkCallbacks(callbacks, previousCallbacks, percentage, tolerance, totalTicks) {
-      var relativeTolerance = Math.round(tolerance * 100 / totalTicks),
-        result = previousCallbacks;
-
-      //Test if a callback exist from percentage - tolererance to percentage + tolererance
-      for (var i = percentage - relativeTolerance, max = percentage + relativeTolerance; i <= max; i++) {
-        //Only execute if it exists and it hasnt been executed before
-        if (callbacks[i] && previousCallbacks.indexOf(callbacks[i]) === -1) {
-          callbacks[i](self);
-          result.push(callbacks[i]);
-        }
+    //Run Transitions if needed
+    function transition(element, transitions) {
+      if (self.options.smoothing && typeof transitions !== "undefined") {
+        element.style.transition = transitions.join(",");
       }
+    }
 
-      return result;
+    //Check if any callbacks need to be run
+    function callback(callbacks, target) {
+      callbacks(target);
     }
 
 
@@ -397,8 +347,9 @@
   Anim.prototype.pause = function() {
     window.setInterval(this, Infinity);
   };
+
   Anim.prototype.stop = function() {
-    window.clearInterval(self.interval);
+    window.clearInterval(this.interval);
   };
 
 
