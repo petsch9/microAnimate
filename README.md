@@ -27,7 +27,7 @@ microAnimate also uses CSS based animating - which means it uses hardware accele
 
 Usage:
 ----------
-
+```javascript
     //Basic Syntax
     var myAnimation = new Anim(element, {animation}, {options});
 
@@ -61,3 +61,4 @@ Usage:
         ease: false
       }
     );
+```
