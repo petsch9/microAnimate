@@ -298,9 +298,11 @@
 
     //Apply all styles for the current Frame
     function animate(element, styles) {
+      //forEach has sucky performance, we shouldnt use it in the loop
       styles.forEach(function(val, index) {
         element.style[val[0]] = val[1];
       });
+
     }
 
     //Run Transitions if needed

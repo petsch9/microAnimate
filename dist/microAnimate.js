@@ -3,6 +3,9 @@
 function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
 
 (function (window) {
+  //Shorthands for better COmpression
+  var _undefined = "undefined";
+
   /*
   * Usage:
    var myAnimation = new Anim(element,{
@@ -154,7 +157,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
             if ((typeof style === "undefined" ? "undefined" : _typeof(style)) === "object") {
               var trans;
 
-              if (typeof nextAnim !== "undefined") {
+              if ((typeof nextAnim === "undefined" ? "undefined" : _typeof(nextAnim)) !== _undefined) {
                 //Transition String
                 trans = nextAnim[i][0] + " " + timeDifference + " " + add;
               } else {
@@ -251,7 +254,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       console.log(relativePercentage);
 
       //Animate if there is data for the current percentage
-      if (typeof self.animation[relativePercentage] !== "undefined") {
+      if (_typeof(self.animation[relativePercentage]) !== _undefined) {
         animate(self.element, self.animation[relativePercentage].styles);
         transition(self.element, self.animation[relativePercentage].transition);
         callback(self.animation[relativePercentage].callback, self);
@@ -267,6 +270,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
     //Apply all styles for the current Frame
     function animate(element, styles) {
+      //forEach has sucky performance, we shouldnt use it in the loop
       styles.forEach(function (val, index) {
         element.style[val[0]] = val[1];
       });
@@ -274,7 +278,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
     //Run Transitions if needed
     function transition(element, transitions) {
-      if (self.options.smoothing && typeof transitions !== "undefined") {
+      if (self.options.smoothing && (typeof transitions === "undefined" ? "undefined" : _typeof(transitions)) !== _undefined) {
         element.style.transition = transitions.join(",");
       }
     }
