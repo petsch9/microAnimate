@@ -14,7 +14,7 @@ Usage
 
     //Full Example
     var myAdvancedAnimation = new Anim(
-      document.body,
+      document.getElementById("square"),
       {
         "0%": [
           ["width", "200px"],

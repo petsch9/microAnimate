@@ -3,9 +3,6 @@
 function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
 
 (function (window) {
-  //Shorthands for better COmpression
-  var _undefined = "undefined";
-
   /*
   * Usage:
    var myAnimation = new Anim(element,{
@@ -47,7 +44,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       duration: 3000,
       ticklength: 30,
       smoothing: true,
-      ease: true
+      ease: false
     } : arguments[2];
 
     return new Anim(element, animation, options);
@@ -157,7 +154,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
             if ((typeof style === "undefined" ? "undefined" : _typeof(style)) === "object") {
               var trans;
 
-              if ((typeof nextAnim === "undefined" ? "undefined" : _typeof(nextAnim)) !== _undefined) {
+              if (typeof nextAnim !== "undefined") {
                 //Transition String
                 trans = nextAnim[i][0] + " " + timeDifference + " " + add;
               } else {
@@ -254,7 +251,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       console.log(relativePercentage);
 
       //Animate if there is data for the current percentage
-      if (_typeof(self.animation[relativePercentage]) !== _undefined) {
+      if (typeof self.animation[relativePercentage] !== "undefined") {
         animate(self.element, self.animation[relativePercentage].styles);
         transition(self.element, self.animation[relativePercentage].transition);
         callback(self.animation[relativePercentage].callback, self);
@@ -278,7 +275,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
     //Run Transitions if needed
     function transition(element, transitions) {
-      if (self.options.smoothing && (typeof transitions === "undefined" ? "undefined" : _typeof(transitions)) !== _undefined) {
+      if (self.options.smoothing && typeof transitions !== "undefined") {
         element.style.transition = transitions.join(",");
       }
     }

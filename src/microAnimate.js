@@ -40,7 +40,7 @@
       duration: 3000,
       ticklength: 30,
       smoothing: true,
-      ease: true
+      ease: false
     }) {
 
 
