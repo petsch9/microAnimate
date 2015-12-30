@@ -6,17 +6,29 @@ module.exports = function(grunt) {
       options: {}
     },
     uglify: {
-      options: {
-        compress: {
-          drop_console: true,
-          screw_ie8: true
-        }
-      },
-      my_target: {
+      main: {
         files: {
           'dist/microAnimate.min.js': 'dist/microAnimate.js'
-            /*,
-                      'dist/microAnimate-es5.min.js': 'src/microAnimate-es5.js'*/
+        },
+        options: {
+          compress: {
+            drop_console: true,
+            hoist_vars: true
+          }
+        }
+      },
+      unsafe: {
+        files: {
+          'dist/microAnimate.min.unsafe.js': 'dist/microAnimate.js'
+        },
+        options: {
+          compress: {
+            drop_console: true,
+            screw_ie8: true,
+            unsafe: true,
+            unsafe_comps: true,
+            hoist_vars: true
+          }
         }
       },
     },
@@ -49,6 +61,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-babel');
 
   grunt.registerTask('test', ['jshint']);
-  grunt.registerTask('default', ['babel:dist', 'uglify']);
+  grunt.registerTask('default', ['babel:dist', 'uglify:main', 'uglify:unsafe']);
 
 };
