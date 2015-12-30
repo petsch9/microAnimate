@@ -59,6 +59,9 @@
       this.animation = processAnimation(prepareObject(animation), this.options),
       this.interval = null;
 
+    //Chache "this"
+    self = this;
+
     if (this.options.totalTicks % 10 !== 0) {
       console.info("The ticklength you provided(" + options.ticklength + ") doesn't fit into the duration " + options.duration);
       console.info("This might cause issues, but you should be fine");
@@ -157,17 +160,19 @@
             //The next key of the Animation
             nextAnim = animation[allKeys[index + 1]],
             //Time between the current and the next key
-            timeDifference = options.totalTicks / (allKeys[index + 1] - allKeys[index]) + "s",
+            timeDifference = (
+              (options.duration / 100) /
+              (allKeys[index + 1] - allKeys[index])
+            ) + "s",
             //Additional transition values, "ease" for example
             add = "";
-
 
           //Ease if easing is enabled (either default or given easing)
           if (options.ease === true || typeof options.ease === "string") {
             if (typeof options.ease === "string") {
-              add = options.ease;
+              add = " " + options.ease;
             } else {
-              add = "ease";
+              add = " ease";
             }
           }
 
@@ -178,7 +183,7 @@
 
               if (typeof nextAnim !== "undefined") {
                 //Transition String
-                trans = nextAnim[i][0] + " " + timeDifference + " " + add;
+                trans = nextAnim[i][0] + " " + timeDifference + add;
               } else {
                 trans = "";
               }
@@ -262,19 +267,16 @@
     console.log(this);
     var ticker = 0,
       relativePercentage = 0,
-      //Cache variables that wouldnt be available to the loop otherwise
-      self = this,
       //All executed callbacks are index to make sure callbacks dont execute twice
       finishedCallbacks = [];
 
-
     //Set to first frame before starting to avoid glitching
-    animate(self.element, self.animation[0].styles);
-    transition(self.element, self.animation[0].transition);
+    resetAnimation(self.element);
+
 
 
     //Main Animation Loop
-    self.interval = window.setInterval(function() {
+    this.interval = window.setInterval(function() {
       relativePercentage = Math.round((100 / self.options.totalTicks) * ticker);
       //Roof at 100
       if (relativePercentage > 100) {
@@ -324,7 +326,7 @@
     //Run Transitions if needed
     function transition(element, transitions) {
       if (self.options.smoothing && typeof transitions !== "undefined") {
-        element.style.transition = transitions.join(",");
+        element.style.transition = transitions.join(", ");
       }
     }
 
@@ -336,18 +338,29 @@
       }
     }
 
+    function resetAnimation(element) {
+      element.style.transition = "none";
+      //Reset EVERY Inline CSS before starting!
+      /*Object.keys(element.style).forEach(function(key) {
+        element.style[key] = "";
+      });*/
+    }
+
 
     function killAnim() {
-      window.clearInterval(self.interval);
+      window.clearInterval(this.interval);
     }
   };
 
   Anim.prototype.pause = function() {
-    window.setInterval(this, Infinity);
+    window.clearInterval(self.interval);
+  };
+  Anim.prototype.unpause = function() {
+    window.clearInterval(self.interval);
   };
 
   Anim.prototype.stop = function() {
-    window.clearInterval(this.interval);
+    window.clearInterval(self.interval);
   };
 
 
