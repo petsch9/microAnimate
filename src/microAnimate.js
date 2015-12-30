@@ -1,67 +1,33 @@
 (function(window) {
-  /*
-  * Usage:
-
-  var myAnimation = new Anim(element,{
-      "0%": [
-        ["width", "200px"],
-        ["color", "transparent"],
-        function() {
-          console.log("callback 1");
-        }
-      ],
-      "20%": [
-        ["width", "100px"],
-        ["color", "white"],
-        function() {
-          console.log("callback 2");
-        }
-      ],
-      "100%": [
-        ["width", "60px"],
-        ["color", "red"],
-        function() {
-          console.log("callback 3");
-        }
-      ]
-    },
-    options = {
-      duration: 2000,
-      ticklength: 30,
-      smoothing: true,
-      callbackTolerance: 2.5
-    });
-
-  *
-  */
 
   function microAnimate(
     element = document.body,
     animation = {},
     options = {
       duration: 2000,
-      ticklength: 30,
+      ticklength: 50,
       smoothing: true,
-      ease: false
+      ease: false,
+      retainEndState:true
     }
   ) {
-
-
     return new Anim(element, animation, options);
-
   }
 
+
   var Anim = function(element, animation, options) {
-    //Clone Arguments to Anim
-    this.element = element,
-      this.options = options,
-      this.options.totalTicks = options.duration / options.ticklength,
-      this.animation = processAnimation(prepareObject(animation), this.options),
-      this.interval = null;
+    //Process the Animation/Options and store them in "this"
+    this.element = element;
+    this.options = options;
+    this.options.totalTicks = options.duration / options.ticklength;
+    this.animation = processAnimation(prepareObject(animation), this.options);
+    this.interval = null;
 
     //Chache "this"
     self = this;
 
+
+    //Waring when the user gives strange options
     if (this.options.totalTicks % 10 !== 0) {
       console.info("The ticklength you provided(" + options.ticklength + ") doesn't fit into the duration " + options.duration);
       console.info("This might cause issues, but you should be fine");
@@ -69,40 +35,7 @@
     }
 
 
-    /*The Animation get calculated before it gets executed for better performance
-    * Result looks like this:
-
-    {
-      0: {
-        styles: [
-          ["width", "100px"],
-          ["color", "red"]
-        ]
-        transition: ["width 2s", "color 2s"]
-        callback: callback1()
-      },
-      20: {
-        styles: [
-          ["width", "20px"],
-          ["color", "blue"]
-        ]
-        transition: ["width 6s", "color 6s"]
-        callback: callback2()
-      },
-      100: {
-        styles: [
-          ["width", "400px"],
-          ["color", "gree"]
-        ]
-        transition: []
-        callback: callback3()
-      }
-    }
-
-    *
-    */
-
-
+    //The Animation get calculated before it gets executed for better performance
     //Generate Style, Transition and Callbacks from the animation property
     function processAnimation(animation, options) {
       var result = {},
@@ -130,6 +63,7 @@
        * Mapping Sub-functions
        */
 
+      //Maps Animation
       function mapAnimation(animation) {
         var result = [];
         animation.forEach(function(style) {
@@ -140,7 +74,7 @@
         return result;
       }
 
-
+      //Maps Callbacks
       function mapCallback(animation) {
         var result;
         animation.forEach(function(fn) {
@@ -151,6 +85,7 @@
         return result;
       }
 
+      //Maps Transitions
       function mapTransition(animation, index, allKeys, options) {
         //Only try to create a transition if the Animation isnt finished yet
         if (allKeys[index] !== "100") {
@@ -262,9 +197,8 @@
    * Animation methods
    */
 
+  //Main Animation play-method
   Anim.prototype.start = function() {
-
-    console.log(this);
     var ticker = 0,
       relativePercentage = 0,
       //All executed callbacks are index to make sure callbacks dont execute twice
@@ -311,6 +245,9 @@
     }, self.options.ticklength);
 
 
+    /*
+    * Sub-functions used in the active Animation
+    */
 
     //Apply all styles for the current Frame
     function animate(element, styles) {
@@ -338,6 +275,7 @@
       }
     }
 
+    //Resets the element to its default style
     function resetAnimation(element) {
       element.style.transition = "none";
       //Reset EVERY Inline CSS before starting!
@@ -346,19 +284,22 @@
       });*/
     }
 
-
+    //Clear Animation
     function killAnim() {
       window.clearInterval(this.interval);
     }
   };
 
+  //Pause Animation
   Anim.prototype.pause = function() {
     window.clearInterval(self.interval);
   };
+  //Resume paused Animation
   Anim.prototype.unpause = function() {
     window.clearInterval(self.interval);
   };
 
+  //Stop & Reset Animation
   Anim.prototype.stop = function() {
     window.clearInterval(self.interval);
   };
