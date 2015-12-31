@@ -34,12 +34,9 @@ module.exports = function(grunt) {
     },
     copy: {
       main: {
-        expand: true,
-        cwd: 'src/',
-        src: 'microAnimate.js',
-        dest: 'dist/',
-        flatten: true,
-        filter: 'isFile',
+        files: {
+          'dist/microAnimate.es6.js': 'src/microAnimate.js'
+        },
       },
     },
     babel: {
@@ -61,6 +58,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-babel');
 
   grunt.registerTask('test', ['jshint']);
-  grunt.registerTask('default', ['babel:dist', 'uglify:main', 'uglify:unsafe']);
+  grunt.registerTask('default', ['copy:main','babel:dist', 'uglify:main', 'uglify:unsafe']);
 
 };

@@ -279,13 +279,9 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
   };
 
   //Pause Animation
-  microAnimate.prototype.pause = function () {
-    window.clearInterval(self.interval);
-  };
+  microAnimate.prototype.pause = function () {};
   //Resume paused Animation
-  microAnimate.prototype.unpause = function () {
-    window.clearInterval(self.interval);
-  };
+  microAnimate.prototype.unpause = function () {};
 
   //Stop & Reset Animation
   microAnimate.prototype.stop = function () {
