@@ -1,21 +1,16 @@
 (function(window) {
 
-  function microAnimate(
-    element = document.body,
+  var microAnimate = function(
+    element,
     animation = {},
     options = {
       duration: 2000,
       ticklength: 50,
       smoothing: true,
       ease: false,
-      retainEndState:true
+      retainEndState: true
     }
   ) {
-    return new Anim(element, animation, options);
-  }
-
-
-  var Anim = function(element, animation, options) {
     //Process the Animation/Options and store them in "this"
     this.element = element;
     this.options = options;
@@ -198,7 +193,7 @@
    */
 
   //Main Animation play-method
-  Anim.prototype.start = function() {
+  microAnimate.prototype.start = function() {
     var ticker = 0,
       relativePercentage = 0,
       //All executed callbacks are index to make sure callbacks dont execute twice
@@ -211,12 +206,19 @@
 
     //Main Animation Loop
     this.interval = window.setInterval(function() {
+      //Remove the interval if over 100% else Animate
+      if (ticker > self.options.totalTicks) {
+        killAnim();
+      }
+
       relativePercentage = Math.round((100 / self.options.totalTicks) * ticker);
       //Roof at 100
       if (relativePercentage > 100) {
         relativePercentage = 100;
       }
       console.log("Animation Progress: " + relativePercentage + "%");
+
+
 
 
       //Animate if there is data for the current percentage
@@ -235,19 +237,14 @@
         );
       }
 
-      //Remove the interval if over 100% else Animate
-      if (ticker > self.options.totalTicks) {
-        killAnim();
-      }
-
 
       ticker++;
     }, self.options.ticklength);
 
 
     /*
-    * Sub-functions used in the active Animation
-    */
+     * Sub-functions used in the active Animation
+     */
 
     //Apply all styles for the current Frame
     function animate(element, styles) {
@@ -286,21 +283,21 @@
 
     //Clear Animation
     function killAnim() {
-      window.clearInterval(this.interval);
+      window.clearInterval(self.interval);
     }
   };
 
   //Pause Animation
-  Anim.prototype.pause = function() {
+  microAnimate.prototype.pause = function() {
     window.clearInterval(self.interval);
   };
   //Resume paused Animation
-  Anim.prototype.unpause = function() {
+  microAnimate.prototype.unpause = function() {
     window.clearInterval(self.interval);
   };
 
   //Stop & Reset Animation
-  Anim.prototype.stop = function() {
+  microAnimate.prototype.stop = function() {
     window.clearInterval(self.interval);
   };
 

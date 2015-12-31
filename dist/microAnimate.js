@@ -4,8 +4,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
 (function (window) {
 
-  function microAnimate() {
-    var element = arguments.length <= 0 || arguments[0] === undefined ? document.body : arguments[0];
+  var microAnimate = function microAnimate(element) {
     var animation = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
     var options = arguments.length <= 2 || arguments[2] === undefined ? {
       duration: 2000,
@@ -15,10 +14,6 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       retainEndState: true
     } : arguments[2];
 
-    return new Anim(element, animation, options);
-  }
-
-  var Anim = function Anim(element, animation, options) {
     //Process the Animation/Options and store them in "this"
     this.element = element;
     this.options = options;
@@ -188,7 +183,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
    */
 
   //Main Animation play-method
-  Anim.prototype.start = function () {
+  microAnimate.prototype.start = function () {
     var ticker = 0,
         relativePercentage = 0,
 
@@ -200,6 +195,11 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
     //Main Animation Loop
     this.interval = window.setInterval(function () {
+      //Remove the interval if over 100% else Animate
+      if (ticker > self.options.totalTicks) {
+        killAnim();
+      }
+
       relativePercentage = Math.round(100 / self.options.totalTicks * ticker);
       //Roof at 100
       if (relativePercentage > 100) {
@@ -214,17 +214,12 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
         callback(self.animation[relativePercentage].callback, self);
       }
 
-      //Remove the interval if over 100% else Animate
-      if (ticker > self.options.totalTicks) {
-        killAnim();
-      }
-
       ticker++;
     }, self.options.ticklength);
 
     /*
-    * Sub-functions used in the active Animation
-    */
+     * Sub-functions used in the active Animation
+     */
 
     //Apply all styles for the current Frame
     function animate(element, styles) {
@@ -263,21 +258,21 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
     //Clear Animation
     function killAnim() {
-      window.clearInterval(this.interval);
+      window.clearInterval(self.interval);
     }
   };
 
   //Pause Animation
-  Anim.prototype.pause = function () {
+  microAnimate.prototype.pause = function () {
     window.clearInterval(self.interval);
   };
   //Resume paused Animation
-  Anim.prototype.unpause = function () {
+  microAnimate.prototype.unpause = function () {
     window.clearInterval(self.interval);
   };
 
   //Stop & Reset Animation
-  Anim.prototype.stop = function () {
+  microAnimate.prototype.stop = function () {
     window.clearInterval(self.interval);
   };
 
