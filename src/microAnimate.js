@@ -14,10 +14,15 @@
   ) {
     //Process the Animation/Options and store them in "this"
     this.element = element;
+
     this.options = options;
-    this.options.totalTicks = options.duration / options.ticklength;
+    this.options.totalTicks = Math.ceil(options.duration / options.ticklength);
+
     this.animation = processAnimation(prepareObject(animation), this.options);
+
     this.interval = null;
+
+
 
     //Chache "this"
     self = this;
@@ -198,48 +203,56 @@
     var ticker = 0,
       relativePercentage = 0,
       //All executed callbacks are index to make sure callbacks dont execute twice
-      finishedCallbacks = [];
+      finishedCallbacks = [],
+      //Loop
+      loop={
+        current: 1,
+        max: (typeof this.options.loop === "boolean" ? (this.options.loop ? Infinity : 0) : this.options.loop)
+      };
 
-    //Set to first frame before starting to avoid glitching
-    resetAnimation(self.element);
-
+    resetElement(self.element);
 
 
     //Main Animation Loop
     this.interval = window.setInterval(function() {
-      //Remove the interval if over 100% else Animate
-      if (ticker > self.options.totalTicks) {
-        killAnim();
-      }
-
       relativePercentage = Math.round((100 / self.options.totalTicks) * ticker);
-      //Roof at 100
+
+
+      //Remove the interval if over 100% else Animate
       if (relativePercentage > 100) {
-        relativePercentage = 100;
+        //Check if given loops have been run and if the animation an be terminated
+        if (loop.current < loop.max){
+          //Reset animation
+          ticker=0;
+          finishedCallbacks = [];
+          loop.current++;
+        }else{
+          //terminate animation
+          killAnim();
+        }
+      } else {
+
+        console.log("Animation Progress: " + relativePercentage + "%");
+
+        //Animate if there is data for the current percentage
+        if (typeof self.animation[relativePercentage] !== "undefined") {
+          animate(
+            self.element,
+            self.animation[relativePercentage].styles
+          );
+          transition(
+            self.element,
+            self.animation[relativePercentage].transition
+          );
+          callback(
+            self.animation[relativePercentage].callback,
+            self
+          );
+        }
+
+
+        ticker++;
       }
-      console.log("Animation Progress: " + relativePercentage + "%");
-
-
-
-
-      //Animate if there is data for the current percentage
-      if (typeof self.animation[relativePercentage] !== "undefined") {
-        animate(
-          self.element,
-          self.animation[relativePercentage].styles
-        );
-        transition(
-          self.element,
-          self.animation[relativePercentage].transition
-        );
-        callback(
-          self.animation[relativePercentage].callback,
-          self
-        );
-      }
-
-
-      ticker++;
     }, self.options.ticklength);
 
 
@@ -274,17 +287,17 @@
     }
 
     //Resets the element to its default style
-    function resetAnimation(element) {
-      element.style.transition = "none";
-      //Reset EVERY Inline CSS before starting!
-      /*Object.keys(element.style).forEach(function(key) {
-        element.style[key] = "";
-      });*/
+    function resetElement(element) {
+      //Kind of rough but it works
+      element.style = "";
     }
 
     //Clear Animation
     function killAnim() {
       window.clearInterval(self.interval);
+      if (!self.options.retainEndState) {
+        resetElement(self.element);
+      }
     }
   };
 

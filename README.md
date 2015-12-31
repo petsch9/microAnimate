@@ -16,12 +16,19 @@ microAnimate also uses CSS based animating - which means it uses hardware accele
   _Values too high or too low might break the animation!_
 
  - smoothing:
-  if the steps of the animation should be smoothed.
+  If the steps of the animation should be smoothed.
   default: true.
 
  - ease:
-  if the animation should be eased.
-  accepts either "true" or a custom easing.
+  If the animation should be eased. Accepts either "true" or a custom CSS-easing.
+  default: false.
+
+ - retainEndState:
+  If the animation should stay the way it finished or if it should be reseted to the initial state
+  default: true.
+
+ - loop:
+  If the should loop. either false, true(infinite times) or integer(n times).
   default: false.
 
 
