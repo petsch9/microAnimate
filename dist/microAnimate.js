@@ -8,10 +8,11 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
     var animation = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
     var options = arguments.length <= 2 || arguments[2] === undefined ? {
       duration: 2000,
-      ticklength: 50,
+      ticklength: 20,
       smoothing: true,
-      ease: false,
-      retainEndState: true
+      ease: true,
+      retainEndState: true,
+      loop: true
     } : arguments[2];
 
     //Process the Animation/Options and store them in "this"

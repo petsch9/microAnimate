@@ -5,10 +5,11 @@
     animation = {},
     options = {
       duration: 2000,
-      ticklength: 50,
+      ticklength: 20,
       smoothing: true,
-      ease: false,
-      retainEndState: true
+      ease: true,
+      retainEndState: true,
+      loop: true
     }
   ) {
     //Process the Animation/Options and store them in "this"
