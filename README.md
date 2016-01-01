@@ -1,35 +1,39 @@
-microAnimate
-=============
-microAnimate is a tiny(~2.5kb) JavaScript Library with a CSS-like animation syntax.
-This library calculates the Animation when its initialized, not when executed, giving a huge performance boost!
-microAnimate also uses CSS based animating - which means it uses hardware acceleration.
+# microAnimate
+microAnimate is a tiny(~2.5kb) JavaScript Library with a CSS-like animation syntax. This library calculates the Animation when its initialized, not when executed, giving a huge performance boost! microAnimate also uses CSS based animating - which means it uses hardware acceleration.
 
+_Options:_
+- duration:
 
-*Options:*
-
- - duration:
   the duration of the whole animation in ms
 
- - tickrate:
+- tickrate:
+
   How long each tick of the animation should be(in ms), lower values are smoother.
+
   default: 30, recommened range is 10 to 50.
+
   _Values too high or too low might break the animation!_
 
- - ease:
+- ease:
+
   If the animation should be eased. Accepts either "true" or a custom CSS-easing.
+
   default: false.
 
- - retainEndState:
+- retainEndState:
+
   If the animation should stay the way it finished or if it should be reseted to the initial state
+
   default: true.
 
- - loop:
+- loop:
+
   If the should loop. either false, true(infinite times) or integer(n times).
+
   default: false.
 
+## Usage:
 
-Usage:
-----------
 ```javascript
 //Basic Syntax
 var myAnimation = new Anim(element, {animation}, {options});
@@ -44,6 +48,7 @@ var myAdvancedAnimation = new Anim(
     ],
     "20%": [
       ["width", "100px"],
+      ["width", "#fff"],
       function() {
         console.log("callback 2");
       }
@@ -58,8 +63,9 @@ var myAdvancedAnimation = new Anim(
   }, {
     duration: 2000,
     ticklength: 30,
-    smoothing: true,
-    ease: false
+    ease: true,
+    retainEndState: true,
+    loop: false
   }
 );
 ```

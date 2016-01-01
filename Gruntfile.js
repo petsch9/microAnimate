@@ -79,7 +79,10 @@ module.exports = function(grunt) {
           }, {
             match: /\.callback/g,
             replacement: '.b'
-          },  ]
+          }, {
+            match: /\.initial/g,
+            replacement: '.n'
+          },   ]
         },
         files: {
           'dist/microAnimate.min.js': 'dist/microAnimate.js'

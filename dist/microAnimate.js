@@ -8,7 +8,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
     var animation = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
     var options = arguments.length <= 2 || arguments[2] === undefined ? {
       duration: 2000,
-      ticklength: 20,
+      ticklength: 30,
       ease: true,
       retainEndState: true,
       loop: false
@@ -24,12 +24,8 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
     this.interval = null;
 
-    //Chache "this"
-
-    console.log(self);
-
     //Waring when the user gives strange options
-    if (self.options.totalTicks % 10 !== 0) {
+    if (this.options.totalTicks % 10 !== 0) {
       console.info("The ticklength you provided(" + options.ticklength + ") doesn't fit into the duration " + options.duration);
       console.info("This might cause issues, but you should be fine");
       console.info("To avoid this make sure the duration is a multiple of the ticklength");
@@ -38,8 +34,13 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
     //The Animation get calculated before it gets executed for better performance
     //Generate Style, Transition and Callbacks from the animation property
     function processAnimation(animation, options) {
-      var result = {},
+      var result = {
+        initial: {}
+      },
           animKeys = Object.keys(animation);
+
+      //Initial State
+      result.initial.styles = mapAnimation(animation[0], animation[0]);
 
       //Go over each percentage given
       animKeys.forEach(function (key, index) {
@@ -47,12 +48,17 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
         var newKey = dynamicKey(key, options);
         result[newKey] = {};
 
-        result[newKey].styles = mapAnimation(animation[key]);
-        result[newKey].callback = mapCallback(animation[key]);
+        //Only try to create a transition if the Animation isnt finished yet
+        if (animKeys[index] !== "100") {
+          //The next key of the Animation
+          nextAnim = animation[animKeys[index + 1]];
+          //Time between the current and the next key
+          timeDifference = options.duration * (animKeys[index + 1] - animKeys[index]) / 100 / 1000 + "s";
 
-        if (options.smoothing) {
-          result[newKey].transition = mapTransition(animation, index, animKeys, options);
+          result[newKey].styles = mapAnimation(animation[key], nextAnim);
+          result[newKey].transition = mapTransition(animation[key], nextAnim, timeDifference, options);
         }
+        result[newKey].callback = mapCallback(animation[key]);
       });
 
       return result;
@@ -62,9 +68,9 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
        */
 
       //Maps Animation
-      function mapAnimation(animation) {
+      function mapAnimation(animation, nextAnim) {
         var result = [];
-        animation.forEach(function (style) {
+        nextAnim.forEach(function (style) {
           if ((typeof style === "undefined" ? "undefined" : _typeof(style)) === "object") {
             result.push(style);
           }
@@ -84,47 +90,37 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       }
 
       //Maps Transitions
-      function mapTransition(animation, index, allKeys, options) {
-        //Only try to create a transition if the Animation isnt finished yet
-        if (allKeys[index] !== "100") {
+      function mapTransition(animation, nextAnim, timeDifference, options) {
+        var result = [],
 
-          var result = [],
+        //Additional transition values like "ease"
+        add = "";
 
-          //The next key of the Animation
-          nextAnim = animation[allKeys[index + 1]],
-
-          //Time between the current and the next key
-          timeDifference = options.duration / 100 / (allKeys[index + 1] - allKeys[index]) + "s",
-
-          //Additional transition values, "ease" for example
-          add = "";
-
-          //Ease if easing is enabled (either default or given easing)
-          if (options.ease === true || typeof options.ease === "string") {
-            if (typeof options.ease === "string") {
-              add = " " + options.ease;
-            } else {
-              add = " ease";
-            }
+        //Ease if easing is enabled (either default or given easing)
+        if (options.ease === true || typeof options.ease === "string") {
+          if (typeof options.ease === "string") {
+            add = " " + options.ease;
+          } else {
+            add = " ease";
           }
-
-          animation[allKeys[index]].forEach(function (style, i) {
-            if ((typeof style === "undefined" ? "undefined" : _typeof(style)) === "object") {
-              var trans;
-
-              if (typeof nextAnim !== "undefined") {
-                //Transition String
-                trans = nextAnim[i][0] + " " + timeDifference + add;
-              } else {
-                trans = "";
-              }
-
-              result.push(trans);
-            }
-          });
-
-          return result;
         }
+
+        animation.forEach(function (style, i) {
+          if ((typeof style === "undefined" ? "undefined" : _typeof(style)) === "object") {
+            var trans;
+
+            if (typeof nextAnim !== "undefined") {
+              //Transition String
+              trans = nextAnim[i][0] + " " + timeDifference + add;
+            } else {
+              trans = "";
+            }
+
+            result.push(trans);
+          }
+        });
+
+        return result;
       }
 
       //Change keys to fit strange intervals
@@ -188,7 +184,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
   //Main Animation play-method
   microAnimate.prototype.start = function () {
-    var _self = self,
+    var _self = this,
         ticker = 0,
         relativePercentage = 0,
 
@@ -201,7 +197,9 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       max: typeof _self.options.loop === "boolean" ? _self.options.loop ? Infinity : 0 : self.options.loop
     };
 
+    //Reset Element
     resetElement(_self.element);
+    animate(_self.element, _self.animation.initial.styles);
 
     //Main Animation Loop
     _self.interval = window.setInterval(function () {
@@ -225,8 +223,8 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
         //Animate if there is data for the current percentage
         if (typeof _self.animation[relativePercentage] !== "undefined") {
-          animate(_self.element, _self.animation[relativePercentage].styles);
           transition(_self.element, _self.animation[relativePercentage].transition);
+          animate(_self.element, _self.animation[relativePercentage].styles);
           callback(_self.animation[relativePercentage].callback, _self);
         }
 
@@ -240,18 +238,20 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
     //Apply all styles for the current Frame
     function animate(element, styles) {
-      //forEach has sucky performance, we shouldnt use it in the loop
-      /*styles.forEach(function(val, index) {
-        element.style[val[0]] = val[1];
-      });*/
-      for (var i = 0; i < styles.length; i++) {
-        element.style[styles[i][0]] = styles[i][1];
+      if (typeof styles !== "undefined") {
+        //forEach has sucky performance, we shouldnt use it in the loop
+        /*styles.forEach(function(val, index) {
+          element.style[val[0]] = val[1];
+        });*/
+        for (var i = 0; i < styles.length; i++) {
+          element.style[styles[i][0]] = styles[i][1];
+        }
       }
     }
 
     //Run Transitions if needed
     function transition(element, transitions) {
-      if (_self.options.smoothing && typeof transitions !== "undefined") {
+      if (typeof transitions !== "undefined") {
         element.style.transition = transitions.join(", ");
       }
     }
