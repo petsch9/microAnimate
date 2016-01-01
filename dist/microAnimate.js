@@ -15,26 +15,19 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
     //Process the Animation/Options and store them in "this"
     this.element = element;
-
     this.options = options;
-    //Const
-    this.options.ticklength = 30;
-    this.options.totalTicks = Math.ceil(options.duration / options.ticklength);
-
-    this.animation = processAnimation(prepareObject(animation), this.options);
-
+    //Constants
+    this.data = {
+      ticklength: 30,
+      pauseOnNextFrame: false
+    };
+    this.data.totalTicks = Math.ceil(options.duration / this.data.ticklength);
+    this.animation = processAnimation(prepareObject(animation), this.data, this.options);
     this.interval = null;
-
-    //Waring when the user gives strange options
-    /*if (this.options.totalTicks % 10 !== 0) {
-      console.info("The ticklength you provided(" + options.ticklength + ") doesn't fit into the duration " + options.duration);
-      console.info("This might cause issues, but you should be fine");
-      console.info("To avoid this make sure the duration is a multiple of the ticklength");
-    }*/
 
     //The Animation get calculated before it gets executed for better performance
     //Generate Style, Transition and Callbacks from the animation property
-    function processAnimation(animation, options) {
+    function processAnimation(animation, data, options) {
       var result = {
         initial: {}
       },
@@ -46,7 +39,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       //Go over each percentage given
       animKeys.forEach(function (key, index) {
         //Generates a new key to fit certain intervals
-        var newKey = dynamicKey(key, options);
+        var newKey = dynamicKey(key, data);
         result[newKey] = {};
 
         //Only try to create a transition if the Animation isnt finished yet
@@ -125,12 +118,12 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       }
 
       //Change keys to fit strange intervals
-      function dynamicKey(key, options) {
+      function dynamicKey(key, data) {
         var result;
         //if Key is Zero, dont change!
         if (key !== 0) {
           //Smooth key to fit current interval
-          result = Math.round(Math.round(key / 100 * options.totalTicks) * (100 / options.totalTicks));
+          result = Math.round(Math.round(key / 100 * data.totalTicks) * (100 / data.totalTicks));
           if (result > 100) {
             result = 100;
           }
@@ -208,7 +201,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
     //Main Animation Interval
     function animLoop() {
       //_self.interval = window.setInterval(() => {
-      relativePercentage = Math.round(100 / _self.options.totalTicks * ticker);
+      relativePercentage = Math.round(100 / _self.data.totalTicks * ticker);
 
       //Remove the interval if over 100% else Animate
       if (relativePercentage > 100) {
@@ -236,7 +229,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
         }
 
         ticker++;
-        window.setTimeout(window.requestAnimationFrame(animLoop), _self.options.ticklength);
+        _self.interval = window.setTimeout(window.requestAnimationFrame(animLoop), _self.data.ticklength);
       }
     }
 

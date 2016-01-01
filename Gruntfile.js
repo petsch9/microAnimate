@@ -35,7 +35,11 @@ module.exports = function(grunt) {
     copy: {
       main: {
         files: {
-          'dist/microAnimate-es6.js': 'src/microAnimate.js'
+          'dist/microAnimate-es6.js': 'src/microAnimate.js',
+        },
+      },demo: {
+        files: {
+          'demo/microAnimate.js': 'src/microAnimate.js',
         },
       },
     },
@@ -46,22 +50,22 @@ module.exports = function(grunt) {
           patterns: [{
             match: /\.options/g,
             replacement: '.o'
-          },{
+          }, {
             match: /\.element/g,
             replacement: '.e'
-          },{
+          }, {
             match: /\.duration/g,
             replacement: '.d'
-          },{
+          }, {
             match: /\.ticklength/g,
             replacement: '.t'
-          },{
+          }, {
             match: /\.totalTicks/g,
             replacement: '.k'
-          },{
+          }, {
             match: /\.animation/g,
             replacement: '.a'
-          },{
+          }, {
             match: /\.interval/g,
             replacement: '.i'
           }, {
@@ -70,10 +74,10 @@ module.exports = function(grunt) {
           }, {
             match: /\.retainEndState/g,
             replacement: '.r'
-          },  {
+          }, {
             match: /\.styles/g,
             replacement: '.c'
-          },  {
+          }, {
             match: /\.transition/g,
             replacement: '.z'
           }, {
@@ -82,7 +86,19 @@ module.exports = function(grunt) {
           }, {
             match: /\.initial/g,
             replacement: '.n'
-          },   ]
+          }, {
+            match: /initial:/g,
+            replacement: 'n:'
+          }, {
+            match: /\.current/g,
+            replacement: '.y'
+          }, {
+            match: /\.max/g,
+            replacement: '.x'
+          },  {
+            match: /\.data/g,
+            replacement: '.j'
+          }]
         },
         files: {
           'dist/microAnimate.min.js': 'dist/microAnimate.js'
@@ -107,6 +123,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-replace');
   grunt.loadNpmTasks('grunt-contrib-uglify');
 
-  grunt.registerTask('default', ['copy:main', 'babel:dist', 'replace:dist','uglify:unsafe', 'uglify:main']);
+  grunt.registerTask('default', ['copy:main', 'babel:dist','copy:demo', 'replace:dist', 'uglify:unsafe', 'uglify:main']);
 
 };

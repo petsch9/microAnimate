@@ -6,13 +6,6 @@ _Options:_
 
   the duration of the whole animation in ms
 
-- tickrate:
-
-  How long each tick of the animation should be(in ms), lower values are smoother.
-
-  default: 30, recommened range is 10 to 50.
-
-  _Values too high or too low might break the animation!_
 
 - ease:
 
@@ -48,7 +41,7 @@ var myAdvancedAnimation = new Anim(
     ],
     "20%": [
       ["width", "100px"],
-      ["width", "#fff"],
+      ["color", "#fff"],
       function() {
         console.log("callback 2");
       }
