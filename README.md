@@ -15,10 +15,6 @@ microAnimate also uses CSS based animating - which means it uses hardware accele
   default: 30, recommened range is 10 to 50.
   _Values too high or too low might break the animation!_
 
- - smoothing:
-  If the steps of the animation should be smoothed.
-  default: true.
-
  - ease:
   If the animation should be eased. Accepts either "true" or a custom CSS-easing.
   default: false.

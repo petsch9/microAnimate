@@ -8,7 +8,7 @@ module.exports = function(grunt) {
     uglify: {
       main: {
         files: {
-          'dist/microAnimate.min.js': 'dist/microAnimate.js'
+          'dist/microAnimate.min.js': 'dist/microAnimate.min.js'
         },
         options: {
           compress: {
@@ -19,7 +19,7 @@ module.exports = function(grunt) {
       },
       unsafe: {
         files: {
-          'dist/microAnimate.min.unsafe.js': 'dist/microAnimate.js'
+          'dist/microAnimate.min.unsafe.js': 'dist/microAnimate.min.js'
         },
         options: {
           compress: {
@@ -35,9 +35,56 @@ module.exports = function(grunt) {
     copy: {
       main: {
         files: {
-          'dist/microAnimate.es6.js': 'src/microAnimate.js'
+          'dist/microAnimate-es6.js': 'src/microAnimate.js'
         },
       },
+    },
+    /* UglifyJS doesnt uglify properties, so we do it by hand*/
+    replace: {
+      dist: {
+        options: {
+          patterns: [{
+            match: /\.options/g,
+            replacement: '.o'
+          },{
+            match: /\.element/g,
+            replacement: '.e'
+          },{
+            match: /\.duration/g,
+            replacement: '.d'
+          },{
+            match: /\.ticklength/g,
+            replacement: '.t'
+          },{
+            match: /\.totalTicks/g,
+            replacement: '.k'
+          },{
+            match: /\.animation/g,
+            replacement: '.a'
+          },{
+            match: /\.interval/g,
+            replacement: '.i'
+          }, {
+            match: /\.ease/g,
+            replacement: '.s'
+          }, {
+            match: /\.retainEndState/g,
+            replacement: '.r'
+          },  {
+            match: /\.styles/g,
+            replacement: '.c'
+          },  {
+            match: /\.transition/g,
+            replacement: '.z'
+          }, {
+            match: /\.callback/g,
+            replacement: '.b'
+          },  ]
+        },
+        files: {
+          'dist/microAnimate.min.js': 'dist/microAnimate.js'
+        }
+      }
     },
     babel: {
       options: {
@@ -52,12 +99,11 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-babel');
+  grunt.loadNpmTasks('grunt-replace');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
 
-  grunt.registerTask('test', ['jshint']);
-  grunt.registerTask('default', ['copy:main','babel:dist', 'uglify:main', 'uglify:unsafe']);
+  grunt.registerTask('default', ['copy:main', 'babel:dist', 'replace:dist','uglify:unsafe', 'uglify:main']);
 
 };

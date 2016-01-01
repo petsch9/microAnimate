@@ -9,10 +9,9 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
     var options = arguments.length <= 2 || arguments[2] === undefined ? {
       duration: 2000,
       ticklength: 20,
-      smoothing: true,
       ease: true,
       retainEndState: true,
-      loop: true
+      loop: false
     } : arguments[2];
 
     //Process the Animation/Options and store them in "this"
@@ -26,10 +25,11 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
     this.interval = null;
 
     //Chache "this"
-    self = this;
+
+    console.log(self);
 
     //Waring when the user gives strange options
-    if (this.options.totalTicks % 10 !== 0) {
+    if (self.options.totalTicks % 10 !== 0) {
       console.info("The ticklength you provided(" + options.ticklength + ") doesn't fit into the duration " + options.duration);
       console.info("This might cause issues, but you should be fine");
       console.info("To avoid this make sure the duration is a multiple of the ticklength");
@@ -188,7 +188,8 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
   //Main Animation play-method
   microAnimate.prototype.start = function () {
-    var ticker = 0,
+    var _self = self,
+        ticker = 0,
         relativePercentage = 0,
 
     //All executed callbacks are index to make sure callbacks dont execute twice
@@ -197,14 +198,14 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
     //Loop
     loop = {
       current: 1,
-      max: typeof this.options.loop === "boolean" ? this.options.loop ? Infinity : 0 : this.options.loop
+      max: typeof _self.options.loop === "boolean" ? _self.options.loop ? Infinity : 0 : self.options.loop
     };
 
-    resetElement(self.element);
+    resetElement(_self.element);
 
     //Main Animation Loop
-    this.interval = window.setInterval(function () {
-      relativePercentage = Math.round(100 / self.options.totalTicks * ticker);
+    _self.interval = window.setInterval(function () {
+      relativePercentage = Math.round(100 / _self.options.totalTicks * ticker);
 
       //Remove the interval if over 100% else Animate
       if (relativePercentage > 100) {
@@ -223,15 +224,15 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
         console.log("Animation Progress: " + relativePercentage + "%");
 
         //Animate if there is data for the current percentage
-        if (typeof self.animation[relativePercentage] !== "undefined") {
-          animate(self.element, self.animation[relativePercentage].styles);
-          transition(self.element, self.animation[relativePercentage].transition);
-          callback(self.animation[relativePercentage].callback, self);
+        if (typeof _self.animation[relativePercentage] !== "undefined") {
+          animate(_self.element, _self.animation[relativePercentage].styles);
+          transition(_self.element, _self.animation[relativePercentage].transition);
+          callback(_self.animation[relativePercentage].callback, _self);
         }
 
         ticker++;
       }
-    }, self.options.ticklength);
+    }, _self.options.ticklength);
 
     /*
      * Sub-functions used in the active Animation
@@ -250,7 +251,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
     //Run Transitions if needed
     function transition(element, transitions) {
-      if (self.options.smoothing && typeof transitions !== "undefined") {
+      if (_self.options.smoothing && typeof transitions !== "undefined") {
         element.style.transition = transitions.join(", ");
       }
     }
@@ -271,9 +272,9 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
     //Clear Animation
     function killAnim() {
-      window.clearInterval(self.interval);
-      if (!self.options.retainEndState) {
-        resetElement(self.element);
+      window.clearInterval(_self.interval);
+      if (!_self.options.retainEndState) {
+        resetElement(_self.element);
       }
     }
   };
