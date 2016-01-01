@@ -8,7 +8,7 @@
       ticklength: 30,
       ease: true,
       retainEndState: true,
-      loop: false
+      loop: 0
     }
   ) {
     //Process the Animation/Options and store them in "this"
@@ -203,7 +203,6 @@
       relativePercentage = 0,
       //All executed callbacks are index to make sure callbacks dont execute twice
       finishedCallbacks = [],
-      //Loop
       loop = {
         current: 1,
         max: (typeof _self.options.loop === "boolean" ? (_self.options.loop ? Infinity : 0) : self.options.loop)
@@ -217,7 +216,7 @@
     );
 
 
-    //Main Animation Loop
+    //Main Animation Interval
     _self.interval = window.setInterval(() => {
       relativePercentage = Math.round((100 / _self.options.totalTicks) * ticker);
 

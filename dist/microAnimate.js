@@ -11,7 +11,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       ticklength: 30,
       ease: true,
       retainEndState: true,
-      loop: false
+      loop: 0
     } : arguments[2];
 
     //Process the Animation/Options and store them in "this"
@@ -190,9 +190,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
     //All executed callbacks are index to make sure callbacks dont execute twice
     finishedCallbacks = [],
-
-    //Loop
-    loop = {
+        loop = {
       current: 1,
       max: typeof _self.options.loop === "boolean" ? _self.options.loop ? Infinity : 0 : self.options.loop
     };
@@ -201,7 +199,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
     resetElement(_self.element);
     animate(_self.element, _self.animation.initial.styles);
 
-    //Main Animation Loop
+    //Main Animation Interval
     _self.interval = window.setInterval(function () {
       relativePercentage = Math.round(100 / _self.options.totalTicks * ticker);
 
