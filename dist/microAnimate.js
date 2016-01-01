@@ -210,6 +210,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
         //Check if given loops have been run and if the animation an be terminated
         if (loop.current < loop.max) {
           //Reset animation
+          animate(_self.element, _self.animation.initial.styles);
           ticker = 0;
           finishedCallbacks = [];
           loop.current++;
@@ -286,7 +287,8 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
   //Stop & Reset Animation
   microAnimate.prototype.stop = function () {
-    window.clearInterval(self.interval);
+    window.clearInterval(this.interval);
+    this.element.style = "";
   };
 
   //Export microAnimate to global scope

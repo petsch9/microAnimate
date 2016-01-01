@@ -227,6 +227,10 @@
         //Check if given loops have been run and if the animation an be terminated
         if (loop.current < loop.max) {
           //Reset animation
+          animate(
+            _self.element,
+            _self.animation.initial.styles
+          );
           ticker = 0;
           finishedCallbacks = [];
           loop.current++;
@@ -319,7 +323,8 @@
 
   //Stop & Reset Animation
   microAnimate.prototype.stop = function() {
-    window.clearInterval(self.interval);
+    window.clearInterval(this.interval);
+    this.element.style = "";
   };
 
 
