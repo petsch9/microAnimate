@@ -5,7 +5,6 @@
     animation = {},
     options = {
       duration: 2000,
-      ticklength: 30,
       ease: true,
       retainEndState: true,
       loop: 0
@@ -15,6 +14,8 @@
     this.element = element;
 
     this.options = options;
+    //Const
+    this.options.ticklength=30;
     this.options.totalTicks = Math.ceil(options.duration / options.ticklength);
 
     this.animation = processAnimation(prepareObject(animation), this.options);
@@ -24,11 +25,11 @@
 
 
     //Waring when the user gives strange options
-    if (this.options.totalTicks % 10 !== 0) {
+    /*if (this.options.totalTicks % 10 !== 0) {
       console.info("The ticklength you provided(" + options.ticklength + ") doesn't fit into the duration " + options.duration);
       console.info("This might cause issues, but you should be fine");
       console.info("To avoid this make sure the duration is a multiple of the ticklength");
-    }
+    }*/
 
 
     //The Animation get calculated before it gets executed for better performance
@@ -198,6 +199,7 @@
 
   //Main Animation play-method
   microAnimate.prototype.start = function() {
+    console.log(this);
     var _self = this,
       ticker = 0,
       relativePercentage = 0,
@@ -205,7 +207,7 @@
       finishedCallbacks = [],
       loop = {
         current: 1,
-        max: (typeof _self.options.loop === "boolean" ? (_self.options.loop ? Infinity : 0) : self.options.loop)
+        max: (typeof this.options.loop === "boolean" ? (this.options.loop ? Infinity : 0) : this.options.loop)
       };
 
     //Reset Element
@@ -216,8 +218,15 @@
     );
 
 
+    //  ;
+    //Start the animLoop
+    animLoop(_self);
+
+
+
     //Main Animation Interval
-    _self.interval = window.setInterval(() => {
+    function animLoop() {
+      //_self.interval = window.setInterval(() => {
       relativePercentage = Math.round((100 / _self.options.totalTicks) * ticker);
 
 
@@ -233,6 +242,7 @@
           ticker = 0;
           finishedCallbacks = [];
           loop.current++;
+          animLoop();
         } else {
           //terminate animation
           killAnim();
@@ -259,8 +269,12 @@
 
 
         ticker++;
+        window.setTimeout(
+          window.requestAnimationFrame(animLoop),
+          _self.options.ticklength
+        );
       }
-    }, _self.options.ticklength);
+    }
 
 
     /*
@@ -304,7 +318,7 @@
 
     //Clear Animation
     function killAnim() {
-      window.clearInterval(_self.interval);
+      //window.clearInterval(_self.interval);
       if (!_self.options.retainEndState) {
         resetElement(_self.element);
       }
@@ -322,10 +336,51 @@
 
   //Stop & Reset Animation
   microAnimate.prototype.stop = function() {
-    window.clearInterval(this.interval);
+    //window.clearInterval(this.interval);
     this.element.style = "";
   };
 
+
+
+  /*
+   * Internal Polyfills
+   */
+
+
+  //rAF is supported in pretty much every current browser, but for older ones there is this polyfill:
+
+  // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+  // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+  // requestAnimationFrame polyfill by Erik Möller. fixes from Paul Irish and Tino Zijdel
+  // MIT license
+
+  //Edited to ES6
+  /*(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+      window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
+      window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame'] ||
+        window[vendors[x] + 'CancelRequestAnimationFrame'];
+    }
+
+    if (!window.requestAnimationFrame)
+      window.requestAnimationFrame = function(callback, element) {
+        var currTime = new Date().getTime();
+        var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+        var id = window.setTimeout(() => {
+            callback(currTime + timeToCall);
+          },
+          timeToCall);
+        lastTime = currTime + timeToCall;
+        return id;
+      };
+
+    if (!window.cancelAnimationFrame)
+      window.cancelAnimationFrame = function(id) {
+        clearTimeout(id);
+      };
+  }());*/
 
 
   //Export microAnimate to global scope
