@@ -1,32 +1,10 @@
-# microAnimate
+microAnimate
+=============
 microAnimate is a tiny(~2.5kb) JavaScript Library with a CSS-like animation syntax. This library calculates the Animation when its initialized, not when executed, giving a huge performance boost! microAnimate also uses CSS based animating - which means it uses hardware acceleration.
 
-_Options:_
-- duration:
 
-  the duration of the whole animation in ms
-
-
-- ease:
-
-  If the animation should be eased. Accepts either "true" or a custom CSS-easing.
-
-  default: false.
-
-- retainEndState:
-
-  If the animation should stay the way it finished or if it should be reseted to the initial state
-
-  default: true.
-
-- loop:
-
-  If the should loop. either false, true(infinite times) or integer(n times).
-
-  default: false.
-
-## Usage:
-
+*Usage:*
+============
 ```javascript
 //Basic Syntax
 var myAnimation = new Anim(element, {animation}, {options});
@@ -62,3 +40,46 @@ var myAdvancedAnimation = new Anim(
   }
 );
 ```
+
+_Methods:_
+-----------
+```javascript
+//Start the Animation
+myAnimation.start();
+
+
+//Stops the Animation & resets it to the initial state
+myAnimation.stop();
+
+
+//Pauses the Animation
+myAnimation.pause();
+
+//Unpauses the Animation
+myAnimation.unpause();
+```
+
+_Options:_
+-----------
+- duration:
+
+  the duration of the whole animation in ms
+
+
+- ease:
+
+  If the animation should be eased. Accepts either "true" or a custom CSS-easing.
+
+  default: false.
+
+- retainEndState:
+
+  If the animation should stay the way it finished or if it should be reseted to the initial state
+
+  default: true.
+
+- loop:
+
+  If the should loop. either false, true(infinite times) or integer(n times).
+
+  default: false.

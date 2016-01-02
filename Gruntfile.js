@@ -8,7 +8,7 @@ module.exports = function(grunt) {
     uglify: {
       main: {
         files: {
-          'dist/microAnimate.min.js': 'dist/microAnimate.min.js'
+          'dist/microAnimate.min.js': 'dist/microAnimate.js'
         },
         options: {
           compress: {
@@ -48,56 +48,68 @@ module.exports = function(grunt) {
       dist: {
         options: {
           patterns: [{
-            match: /\.options/g,
-            replacement: '.o'
+            match: /options/g,
+            replacement: 'a'
           }, {
-            match: /\.element/g,
-            replacement: '.e'
+            match: /element/g,
+            replacement: 'b'
           }, {
-            match: /\.duration/g,
-            replacement: '.d'
+            match: /duration/g,
+            replacement: 'c'
           }, {
-            match: /\.ticklength/g,
-            replacement: '.t'
+            match: /ticklength/g,
+            replacement: 'd'
           }, {
-            match: /\.totalTicks/g,
-            replacement: '.k'
+            match: /totalTicks/g,
+            replacement: 'e'
           }, {
-            match: /\.animation/g,
-            replacement: '.a'
+            match: /animation/g,
+            replacement: 'f'
           }, {
-            match: /\.interval/g,
-            replacement: '.i'
+            match: /interval/g,
+            replacement: 'g'
           }, {
-            match: /\.ease/g,
-            replacement: '.s'
+            match: /ease/g,
+            replacement: 'h'
           }, {
-            match: /\.retainEndState/g,
-            replacement: '.r'
+            match: /retainEndState/g,
+            replacement: 'i'
           }, {
-            match: /\.styles/g,
-            replacement: '.c'
+            match: /styles/g,
+            replacement: 'j'
           }, {
-            match: /\.transition/g,
-            replacement: '.z'
+            match: /transition/g,
+            replacement: 'k'
           }, {
-            match: /\.callback/g,
-            replacement: '.b'
+            match: /callback/g,
+            replacement: 'l'
           }, {
-            match: /\.initial/g,
-            replacement: '.n'
+            match: /initial/g,
+            replacement: 'm'
           }, {
-            match: /initial:/g,
-            replacement: 'n:'
+            match: /current/g,
+            replacement: 'n'
           }, {
-            match: /\.current/g,
-            replacement: '.y'
-          }, {
-            match: /\.max/g,
-            replacement: '.x'
+            match: /max/g,
+            replacement: 'o'
           },  {
-            match: /\.data/g,
-            replacement: '.j'
+            match: /data/g,
+            replacement: 'p'
+          },  {
+            match: /nextFrameAction/g,
+            replacement: 'q'
+          },  {
+            match: /isPaused/g,
+            replacement: 'r'
+          },  {
+            match: /loop/g,
+            replacement: 's'
+          }, {
+            match: /nextAnim/g,
+            replacement: 't'
+          },  {
+            match: /timeDifference/g,
+            replacement: 'u'
           }]
         },
         files: {
@@ -119,9 +131,9 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-babel');
-  grunt.loadNpmTasks('grunt-replace');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-babel');
+    grunt.loadNpmTasks('grunt-replace');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
 
   grunt.registerTask('default', ['copy:main', 'babel:dist','copy:demo', 'replace:dist', 'uglify:unsafe', 'uglify:main']);
 

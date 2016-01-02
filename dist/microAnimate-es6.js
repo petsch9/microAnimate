@@ -1,5 +1,5 @@
 (function(window) {
-
+  //For better compression
   var microAnimate = function(
     element,
     animation = {},
