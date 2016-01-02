@@ -3,8 +3,8 @@ microAnimate
 microAnimate is a tiny(~2.5kb) JavaScript Library with a CSS-like animation syntax. This library calculates the Animation when its initialized, not when executed, giving a huge performance boost! microAnimate also uses CSS based animating - which means it uses hardware acceleration.
 
 
-*Usage:*
-============
+Usage:
+------------
 ```javascript
 //Basic Syntax
 var myAnimation = new Anim(element, {animation}, {options});
@@ -41,7 +41,7 @@ var myAdvancedAnimation = new Anim(
 );
 ```
 
-_Methods:_
+Methods:
 -----------
 ```javascript
 //Start the Animation
@@ -59,7 +59,7 @@ myAnimation.pause();
 myAnimation.unpause();
 ```
 
-_Options:_
+Options:
 -----------
 - duration:
 
