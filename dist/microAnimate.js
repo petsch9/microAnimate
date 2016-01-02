@@ -19,7 +19,8 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
     //Constants
     this.data = {
       ticklength: 30,
-      pauseOnNextFrame: false
+      nextFrameAction: "nothing",
+      isPaused: false
     };
     this.data.totalTicks = Math.ceil(options.duration / this.data.ticklength);
     this.animation = processAnimation(prepareObject(animation), this.data, this.options);
@@ -178,7 +179,9 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
   //Main Animation play-method
   microAnimate.prototype.start = function () {
-    console.log(this);
+    this.data.nextFrameAction = "nothing";
+    this.data.isPaused = false;
+
     var _self = this,
         ticker = 0,
         relativePercentage = 0,
@@ -229,7 +232,22 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
         }
 
         ticker++;
-        _self.interval = window.setTimeout(window.requestAnimationFrame(animLoop), _self.data.ticklength);
+        _self.interval = window.setTimeout(function () {
+          //nextFrameAction Controller
+          if (_self.data.nextFrameAction === "nothing") {
+            window.requestAnimationFrame(animLoop);
+          } else if (_self.data.nextFrameAction === "pause") {
+            //Wait for unpause
+            var interval = window.setInterval(function () {
+              if (_self.data.nextFrameAction === "unpause") {
+                console.log("UNNNN");
+                _self.data.nextFrameAction = "nothing";
+                window.clearInterval(interval);
+                window.requestAnimationFrame(animLoop);
+              }
+            }, 30);
+          }
+        }, _self.data.ticklength);
       }
     }
 
@@ -281,13 +299,21 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
   };
 
   //Pause Animation
-  microAnimate.prototype.pause = function () {};
+  microAnimate.prototype.pause = function () {
+    this.data.nextFrameAction = "pause";
+    this.data.isPaused = true;
+  };
   //Resume paused Animation
-  microAnimate.prototype.unpause = function () {};
+  microAnimate.prototype.unpause = function () {
+    this.data.nextFrameAction = "unpause";
+    this.data.isPaused = false;
+    window.clearInterval(this.interval);
+  };
 
   //Stop & Reset Animation
   microAnimate.prototype.stop = function () {
     //window.clearInterval(this.interval);
+    this.data.nextFrameAction = "stop";
     this.element.style = "";
   };
 
