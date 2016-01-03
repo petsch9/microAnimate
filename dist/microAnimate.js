@@ -28,13 +28,13 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
     this.interval = null;
 
     /*The Animation get calculated before it gets executed for better performance
-    * Generate Style, Transition and Callbacks from the animation property
-    */
+     * Generate Style, Transition and Callbacks from the animation property
+     */
     function processAnimation(animation, data, options) {
+      var animationKeys = Object.keys(animation);
       var result = {
         initial: {}
-      },
-          animationKeys = Object.keys(animation);
+      };
 
       //Initial State
       result.initial.styles = mapAnimation(animation[0], animation[0]);
@@ -58,7 +58,6 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
         }
         result[newKey].callback = mapCallback(animation[key]);
       });
-
       return result;
 
       /*
@@ -68,6 +67,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       //Maps Animation
       function mapAnimation(animation, animationNext) {
         var result = [];
+
         animationNext.forEach(function (style) {
           if ((typeof style === "undefined" ? "undefined" : _typeof(style)) === "object") {
             result.push(style);
@@ -92,18 +92,18 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
           }
         }
 
-        animation.forEach(function (style, i) {
+        animation.forEach(function (style, index) {
           if ((typeof style === "undefined" ? "undefined" : _typeof(style)) === "object") {
-            var trans;
+            var transition = undefined;
 
+            //Transition String
             if (typeof animationNext !== "undefined") {
-              //Transition String
-              trans = animationNext[i][0] + " " + timeDifference + add;
-            } else {
-              trans = "";
-            }
 
-            result.push(trans);
+              transition = animationNext[index][0] + " " + timeDifference + add;
+            } else {
+              transition = "";
+            }
+            result.push(transition);
           }
         });
 
@@ -112,7 +112,8 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
       //Maps Callbacks
       function mapCallback(animation) {
-        var result;
+        var result = undefined;
+
         animation.forEach(function (fn) {
           if (typeof fn === "function") {
             result = fn;
@@ -123,7 +124,8 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
       //Change keys to fit strange intervals
       function dynamicKey(key, data) {
-        var result;
+        var result = undefined;
+
         //if Key is Zero, dont change!
         if (key !== 0) {
           //Smooth key to fit current interval
@@ -144,15 +146,14 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
      *
      */
     function preprocessAnimation(animation) {
-      var keys = Object.keys(animation),
-          optimizedKeys = [],
+      var optimizedKeys = [],
           result = {};
 
       //Go over keys and replace "from" and "to"
-      keys.forEach(function (keyName) {
+      Object.keys(animation).forEach(function (keyName) {
         if (keyName === "from") {
           animation["0%"] = animation[keyName];
-          delete object[keyName];
+          delete animation[keyName];
         } else if (keyName === "to") {
           animation["100%"] = animation[keyName];
           delete animation[keyName];
@@ -217,8 +218,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
           animationKill();
         }
       } else {
-        console.log("Animation Progress: " + relativePercentage + "%");
-
+        //console.log("Animation Progress: " + relativePercentage + "%");
         //Animate if there is data for the current percentage
         if (typeof _self.animation[relativePercentage] !== "undefined") {
           applyTransition(_self.element, _self.animation[relativePercentage].transition);
@@ -228,7 +228,6 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
         tick++;
         //Check if theres anything to do before going to the next frame (pausing etc.)
-
         if (_self.data.action !== 0) {
           //Pause Controller
           if (_self.data.action === 1) {
@@ -290,7 +289,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
     //Clear Animation
     function animationKill() {
       if (!_self.options.retainEndState) {
-        resetElement(_self.element);
+        elementReset(_self.element);
       }
     }
   };
@@ -306,10 +305,13 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
   //Stop & Reset Animation
   microAnimate.prototype.stop = function () {
-    this.data.action = "stop";
     window.clearInterval(this.interval);
     elementReset(this.element);
   };
+
+  /*
+   * Internal functions
+   */
 
   //Resets the element to its default style
   function elementReset(element) {
@@ -317,9 +319,9 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
     element.style = "";
   }
 
-  //Export microAnimate to global scope
+  //Export full namespace to global scope
   window.microAnimate = microAnimate;
-  //Exports shorter
+  //Exports shorter namespace
   window.Anim = microAnimate;
 })(window);
 //# sourceMappingURL=microAnimate.js.map

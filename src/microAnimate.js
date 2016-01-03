@@ -1,6 +1,6 @@
 (function(window) {
   //For better compression
-  var microAnimate = function(
+  let microAnimate = function(
     element,
     animation = {},
     options = {
@@ -31,13 +31,13 @@
 
 
     /*The Animation get calculated before it gets executed for better performance
-    * Generate Style, Transition and Callbacks from the animation property
-    */
+     * Generate Style, Transition and Callbacks from the animation property
+     */
     function processAnimation(animation, data, options) {
-      var result = {
-          initial: {}
-        },
-        animationKeys = Object.keys(animation);
+      const animationKeys = Object.keys(animation);
+      let result = {
+        initial: {}
+      };
 
 
       //Initial State
@@ -46,17 +46,17 @@
       //Go over each percentage given
       animationKeys.forEach((key, index) => {
         //Generates a new key to fit certain intervals
-        var newKey = dynamicKey(key, data);
+        const newKey = dynamicKey(key, data);
         result[newKey] = {};
 
         //Only try to create a transition if the Animation isnt finished yet
         if (animationKeys[index] !== "100") {
           //The next key of the Animation
-          var animationNext = animation[animationKeys[index + 1]],
-          //Time between the current and the next key
-          timeDifference = (
-            (options.duration * (animationKeys[index + 1] - animationKeys[index]) / 100) / 1000
-          ) + "s";
+          const animationNext = animation[animationKeys[index + 1]],
+            //Time between the current and the next key
+            timeDifference = (
+              (options.duration * (animationKeys[index + 1] - animationKeys[index]) / 100) / 1000
+            ) + "s";
 
 
           result[newKey].styles = mapAnimation(animation[key], animationNext);
@@ -64,8 +64,6 @@
         }
         result[newKey].callback = mapCallback(animation[key]);
       });
-
-
       return result;
 
 
@@ -75,7 +73,8 @@
 
       //Maps Animation
       function mapAnimation(animation, animationNext) {
-        var result = [];
+        let result = [];
+
         animationNext.forEach((style) => {
           if (typeof style === "object") {
             result.push(style);
@@ -88,7 +87,7 @@
 
       //Maps Transitions
       function mapTransition(animation, animationNext, timeDifference, ease) {
-        var result = [],
+        let result = [],
           //Additional transition values like "ease"
           add = "";
 
@@ -102,18 +101,19 @@
         }
 
 
-        animation.forEach((style, i) => {
+        animation.forEach((style, index) => {
           if (typeof style === "object") {
-            var trans;
+            let transition;
 
+            //Transition String
             if (typeof animationNext !== "undefined") {
-              //Transition String
-              trans = animationNext[i][0] + " " + timeDifference + add;
-            } else {
-              trans = "";
-            }
 
-            result.push(trans);
+              transition = animationNext[index][0] + " " + timeDifference + add;
+            } else {
+              transition = "";
+            }
+            result.push(transition);
+
           }
         });
 
@@ -123,7 +123,8 @@
 
       //Maps Callbacks
       function mapCallback(animation) {
-        var result;
+        let result;
+
         animation.forEach((fn) => {
           if (typeof fn === "function") {
             result = fn;
@@ -134,7 +135,8 @@
 
       //Change keys to fit strange intervals
       function dynamicKey(key, data) {
-        var result;
+        let result;
+
         //if Key is Zero, dont change!
         if (key !== 0) {
           //Smooth key to fit current interval
@@ -159,15 +161,14 @@
      *
      */
     function preprocessAnimation(animation) {
-      var keys = Object.keys(animation),
-        optimizedKeys = [],
+      let optimizedKeys = [],
         result = {};
 
       //Go over keys and replace "from" and "to"
-      keys.forEach((keyName) => {
+      Object.keys(animation).forEach((keyName) => {
         if (keyName === "from") {
           animation["0%"] = animation[keyName];
-          delete object[keyName];
+          delete animation[keyName];
         } else if (keyName === "to") {
           animation["100%"] = animation[keyName];
           delete animation[keyName];
@@ -199,7 +200,7 @@
 
   //Main Animation play-method
   microAnimate.prototype.start = function() {
-    var _self = this,
+    let _self = this,
       tick = 0,
       relativePercentage = 0,
       //All executed callbacks are index to make sure callbacks dont execute twice
@@ -224,7 +225,6 @@
     function animationLoop() {
       relativePercentage = Math.round((100 / _self.data.ticks) * tick);
 
-
       //Remove the interval if over 100% else Animate
       if (relativePercentage > 100) {
         //Check if given loops have been run and if the animation an be terminated
@@ -237,8 +237,7 @@
           animationKill();
         }
       } else {
-        console.log("Animation Progress: " + relativePercentage + "%");
-
+        //console.log("Animation Progress: " + relativePercentage + "%");
         //Animate if there is data for the current percentage
         if (typeof _self.animation[relativePercentage] !== "undefined") {
           applyTransition(
@@ -255,10 +254,8 @@
           );
         }
 
-
         tick++;
         //Check if theres anything to do before going to the next frame (pausing etc.)
-
         if (_self.data.action !== 0) {
           //Pause Controller
           if (_self.data.action === 1) {
@@ -289,7 +286,7 @@
     //Apply all styles for the current Frame
     function applyAnimation(element, styles) {
       if (typeof styles !== "undefined") {
-        for (var i = 0; i < styles.length; i++) {
+        for (let i = 0; i < styles.length; i++) {
           element.style[styles[i][0]] = styles[i][1];
         }
       }
@@ -325,7 +322,7 @@
     //Clear Animation
     function animationKill() {
       if (!_self.options.retainEndState) {
-        resetElement(_self.element);
+        elementReset(_self.element);
       }
     }
 
@@ -342,12 +339,14 @@
 
   //Stop & Reset Animation
   microAnimate.prototype.stop = function() {
-    this.data.action = "stop";
     window.clearInterval(this.interval);
     elementReset(this.element);
   };
 
 
+  /*
+   * Internal functions
+   */
 
   //Resets the element to its default style
   function elementReset(element) {
@@ -356,9 +355,9 @@
   }
 
 
-  //Export microAnimate to global scope
+  //Export full namespace to global scope
   window.microAnimate = microAnimate;
-  //Exports shorter
+  //Exports shorter namespace
   window.Anim = microAnimate;
 
 })(window);
