@@ -52,7 +52,7 @@
         //Only try to create a transition if the Animation isnt finished yet
         if (animationKeys[index] !== "100") {
           //The next key of the Animation
-          animationNext = animation[animationKeys[index + 1]];
+          var animationNext = animation[animationKeys[index + 1]],
           //Time between the current and the next key
           timeDifference = (
             (options.duration * (animationKeys[index + 1] - animationKeys[index]) / 100) / 1000
@@ -112,7 +112,7 @@
             } else {
               trans = "";
             }
-            
+
             result.push(trans);
           }
         });
