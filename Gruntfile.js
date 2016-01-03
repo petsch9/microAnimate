@@ -41,7 +41,9 @@ module.exports = function(grunt) {
         },
       },
     },
-    /* UglifyJS doesnt uglify properties, so we do it by hand*/
+    /* UglifyJS doesnt uglify properties, so we do it by hand*
+    * The properties left out are not included for a reason, adding them will break functionality
+    */
     replace: {
       dist: {
         options: {
@@ -85,17 +87,8 @@ module.exports = function(grunt) {
             match: /ticklength/g,
             replacement: 'q'
           },{
-            match: /\.current/g,
-            replacement: '.r'
-          },{
             match: /\.action/g,
             replacement: '.s'
-          },{
-            match: /\.max/g,
-            replacement: '.t'
-          },{
-            match: /\.loop/g,
-            replacement: '.u'
           }]
         },
         files: {

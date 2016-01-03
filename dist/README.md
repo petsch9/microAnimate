@@ -11,7 +11,7 @@ Main Versions
 
  - microAnimate.min.js:
 
- Minified with UglifyJS, very small.
+ Minified with UglifyJS, pretty small.
  Good for Production.
 
 
@@ -20,10 +20,10 @@ Unstable Versions
 -------------
  - microAnimate.min.unsafe.js:
 
- Minified with UglifyJS with unsafe settings \& mangled Properies. Even smaller, but the functionality ranges from "does nothing at all" to "wow so many errors".
+ Minified with UglifyJS with unsafe settings \& mangled Properies. Even smaller, but is likely to contain bugs.
  Good for Developement _(THIS IS BUGGY, YOU HAVE BEEN WARNED)_.
 
  - microAnimate-es6.js:
 
- Written in ES6, not yet supported in most browsers
+ Written in ES6, not yet supported in the majority of browsers
  Good for Developement.

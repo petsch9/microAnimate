@@ -231,8 +231,7 @@
           animationKill();
         }
       } else {
-
-        //console.log("Animation Progress: " + relativePercentage + "%");
+        console.log("Animation Progress: " + relativePercentage + "%");
 
         //Animate if there is data for the current percentage
         if (typeof _self.animation[relativePercentage] !== "undefined") {
