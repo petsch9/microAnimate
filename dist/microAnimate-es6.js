@@ -21,41 +21,46 @@
       action: 0
     };
     this.data.ticks = Math.ceil(options.duration / this.data.ticklength);
-    this.animation = processAnimation(prepareObject(animation), this.data, this.options);
+    this.animation = processAnimation(
+      preprocessAnimation(animation),
+      this.data,
+      this.options
+    );
     this.interval = null;
 
 
 
-    //The Animation get calculated before it gets executed for better performance
-    //Generate Style, Transition and Callbacks from the animation property
+    /*The Animation get calculated before it gets executed for better performance
+    * Generate Style, Transition and Callbacks from the animation property
+    */
     function processAnimation(animation, data, options) {
       var result = {
           initial: {}
         },
-        animKeys = Object.keys(animation);
+        animationKeys = Object.keys(animation);
 
 
       //Initial State
       result.initial.styles = mapAnimation(animation[0], animation[0]);
 
       //Go over each percentage given
-      animKeys.forEach((key, index) => {
+      animationKeys.forEach((key, index) => {
         //Generates a new key to fit certain intervals
         var newKey = dynamicKey(key, data);
         result[newKey] = {};
 
         //Only try to create a transition if the Animation isnt finished yet
-        if (animKeys[index] !== "100") {
+        if (animationKeys[index] !== "100") {
           //The next key of the Animation
-          nextAnim = animation[animKeys[index + 1]];
+          animationNext = animation[animationKeys[index + 1]];
           //Time between the current and the next key
           timeDifference = (
-            (options.duration * (animKeys[index + 1] - animKeys[index]) / 100) / 1000
+            (options.duration * (animationKeys[index + 1] - animationKeys[index]) / 100) / 1000
           ) + "s";
 
 
-          result[newKey].styles = mapAnimation(animation[key], nextAnim);
-          result[newKey].transition = mapTransition(animation[key], nextAnim, timeDifference, options);
+          result[newKey].styles = mapAnimation(animation[key], animationNext);
+          result[newKey].transition = mapTransition(animation[key], animationNext, timeDifference, options.ease);
         }
         result[newKey].callback = mapCallback(animation[key]);
       });
@@ -69,9 +74,9 @@
        */
 
       //Maps Animation
-      function mapAnimation(animation, nextAnim) {
+      function mapAnimation(animation, animationNext) {
         var result = [];
-        nextAnim.forEach((style) => {
+        animationNext.forEach((style) => {
           if (typeof style === "object") {
             result.push(style);
           }
@@ -79,28 +84,18 @@
         return result;
       }
 
-      //Maps Callbacks
-      function mapCallback(animation) {
-        var result;
-        animation.forEach((fn) => {
-          if (typeof fn === "function") {
-            result = fn;
-          }
-        });
-        return result;
-      }
 
 
       //Maps Transitions
-      function mapTransition(animation, nextAnim, timeDifference, options) {
+      function mapTransition(animation, animationNext, timeDifference, ease) {
         var result = [],
           //Additional transition values like "ease"
           add = "";
 
         //Ease if easing is enabled (either default or given easing)
-        if (options.ease === true || typeof options.ease === "string") {
-          if (typeof options.ease === "string") {
-            add = " " + options.ease;
+        if (ease === true || typeof ease === "string") {
+          if (typeof ease === "string") {
+            add = " " + ease;
           } else {
             add = " ease";
           }
@@ -111,17 +106,29 @@
           if (typeof style === "object") {
             var trans;
 
-            if (typeof nextAnim !== "undefined") {
+            if (typeof animationNext !== "undefined") {
               //Transition String
-              trans = nextAnim[i][0] + " " + timeDifference + add;
+              trans = animationNext[i][0] + " " + timeDifference + add;
             } else {
               trans = "";
             }
-
+            
             result.push(trans);
           }
         });
 
+        return result;
+      }
+
+
+      //Maps Callbacks
+      function mapCallback(animation) {
+        var result;
+        animation.forEach((fn) => {
+          if (typeof fn === "function") {
+            result = fn;
+          }
+        });
         return result;
       }
 
@@ -144,33 +151,32 @@
 
     }
 
-    /*Sort and format Animation object
+    /* Sort and format Animation object
      *
      * + Converts "from" to "0" and "to" to "100"
      * + converts "100" to 100
      * + fixes unreachable percentages
      *
      */
-
-    function prepareObject(object) {
-      var keys = Object.keys(object),
+    function preprocessAnimation(animation) {
+      var keys = Object.keys(animation),
         optimizedKeys = [],
         result = {};
 
       //Go over keys and replace "from" and "to"
       keys.forEach((keyName) => {
         if (keyName === "from") {
-          object["0%"] = object[keyName];
+          animation["0%"] = animation[keyName];
           delete object[keyName];
         } else if (keyName === "to") {
-          object["100%"] = object[keyName];
-          delete object[keyName];
+          animation["100%"] = animation[keyName];
+          delete animation[keyName];
         }
       });
 
 
       //Sort Keys in a new Array (we need to ".keys() " again because we modiefied the keys before)
-      optimizedKeys = Object.keys(object);
+      optimizedKeys = Object.keys(animation);
       optimizedKeys.forEach((keyName, index) => {
         optimizedKeys[index] = parseInt(keyName.replace("%", ""));
       });
@@ -178,7 +184,7 @@
 
       //Sort Object
       optimizedKeys.forEach((keyName) => {
-        result[keyName] = object[keyName + "%"];
+        result[keyName] = animation[keyName + "%"];
       });
 
       return result;

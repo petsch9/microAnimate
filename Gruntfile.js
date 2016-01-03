@@ -60,7 +60,7 @@ module.exports = function(grunt) {
             match: /styles/g,
             replacement: 'd'
           },{
-            match: /nextAnim/g,
+            match: /animationNext/g,
             replacement: 'f'
           },{
             match: /timeDifference/g,
@@ -82,11 +82,18 @@ module.exports = function(grunt) {
             replacement: '.o'
           },{
             match: /\.interval/g,
-            replacement: 'p'
+            replacement: '.p'
           },{
             match: /ticklength/g,
             replacement: 'q'
           },{
+            match: /current/g,
+            replacement: 'r'
+          },{
+            match: /max/g,
+            replacement: 'e'
+          },
+          {
             match: /\.action/g,
             replacement: '.s'
           }]
