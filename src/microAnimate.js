@@ -15,11 +15,12 @@
     this.options = options;
     //Constants
     this.data = {
+      //Ticklength constant (default: 30)
       ticklength: 30,
-      nextFrameAction: "nothing",
-      isPaused: false
+      //Action, can be: 0=nothing, 1=pause or 2=unpause
+      action: 0
     };
-    this.data.totalTicks = Math.ceil(options.duration / this.data.ticklength);
+    this.data.ticks = Math.ceil(options.duration / this.data.ticklength);
     this.animation = processAnimation(prepareObject(animation), this.data, this.options);
     this.interval = null;
 
@@ -131,8 +132,8 @@
         if (key !== 0) {
           //Smooth key to fit current interval
           result = Math.round(
-            Math.round((key / 100) * data.totalTicks) *
-            (100 / data.totalTicks)
+            Math.round((key / 100) * data.ticks) *
+            (100 / data.ticks)
           );
           if (result > 100) {
             result = 100;
@@ -192,97 +193,86 @@
 
   //Main Animation play-method
   microAnimate.prototype.start = function() {
-    this.data.nextFrameAction = "nothing";
-    this.data.isPaused = false;
-
     var _self = this,
-      ticker = 0,
+      tick = 0,
       relativePercentage = 0,
       //All executed callbacks are index to make sure callbacks dont execute twice
       finishedCallbacks = [],
+      //Loop object that stores the current an the maximum iterations
       loop = {
         current: 1,
         max: (typeof this.options.loop === "boolean" ? (this.options.loop ? Infinity : 0) : this.options.loop)
       };
 
+
     //Reset Element
-    resetElement(_self.element);
-    animate(
-      _self.element,
-      _self.animation.initial.styles
-    );
+    elementReset(_self.element);
+    animationReset();
 
-
-    //  ;
-    //Start the animLoop
-    animLoop(_self);
+    //Start the animation
+    animationLoop(_self);
 
 
 
     //Main Animation Interval
-    function animLoop() {
-      //_self.interval = window.setInterval(() => {
-      relativePercentage = Math.round((100 / _self.data.totalTicks) * ticker);
+    function animationLoop() {
+      relativePercentage = Math.round((100 / _self.data.ticks) * tick);
 
 
       //Remove the interval if over 100% else Animate
       if (relativePercentage > 100) {
         //Check if given loops have been run and if the animation an be terminated
         if (loop.current < loop.max) {
-          //Reset animation
-          animate(
-            _self.element,
-            _self.animation.initial.styles
-          );
-          ticker = 0;
-          finishedCallbacks = [];
+          animationReset();
           loop.current++;
-          animLoop();
+          animationLoop();
         } else {
           //terminate animation
-          killAnim();
+          animationKill();
         }
       } else {
 
-        console.log("Animation Progress: " + relativePercentage + "%");
+        //console.log("Animation Progress: " + relativePercentage + "%");
 
         //Animate if there is data for the current percentage
         if (typeof _self.animation[relativePercentage] !== "undefined") {
-          transition(
+          applyTransition(
             _self.element,
             _self.animation[relativePercentage].transition
           );
-          animate(
+          applyAnimation(
             _self.element,
             _self.animation[relativePercentage].styles
           );
-          callback(
+          applyCallback(
             _self.animation[relativePercentage].callback,
             _self
           );
         }
 
 
-        ticker++;
-        _self.interval = window.setTimeout(() => {
-            //nextFrameAction Controller
-            if (_self.data.nextFrameAction === "nothing") {
-              window.requestAnimationFrame(animLoop);
-            } else if (_self.data.nextFrameAction === "pause") {
-              //Wait for unpause
-              var interval = window.setInterval(() => {
-                if (_self.data.nextFrameAction === "unpause") {
-                  console.log("UNNNN");
-                  _self.data.nextFrameAction = "nothing";
-                  window.clearInterval(interval);
-                  window.requestAnimationFrame(animLoop);
-                }
-              }, 30);
+        tick++;
+        //Check if theres anything to do before going to the next frame (pausing etc.)
 
-            }
-          },
-          _self.data.ticklength
-        );
+        if (_self.data.action !== 0) {
+          //Pause Controller
+          if (_self.data.action === 1) {
+            //Wait for unpause
+            _self.interval = window.setInterval(() => {
+              if (_self.data.action === 2) {
+                //Yay we can continue
+                _self.data.action = 0;
+                window.clearInterval(_self.interval);
+                window.requestAnimationFrame(animationLoop);
+              }
+            }, _self.data.ticklength * 2);
+          }
+        } else {
+          //Ooooor everything is nice and quiet, and we can continue our animation
+          _self.interval = window.setTimeout(() => {
+            window.requestAnimationFrame(animationLoop);
+          }, _self.data.ticklength);
+        }
       }
     }
 
@@ -292,12 +282,8 @@
      */
 
     //Apply all styles for the current Frame
-    function animate(element, styles) {
+    function applyAnimation(element, styles) {
       if (typeof styles !== "undefined") {
-        //forEach has sucky performance, we shouldnt use it in the loop
-        /*styles.forEach(function(val, index) {
-          element.style[val[0]] = val[1];
-        });*/
         for (var i = 0; i < styles.length; i++) {
           element.style[styles[i][0]] = styles[i][1];
         }
@@ -305,14 +291,14 @@
     }
 
     //Run Transitions if needed
-    function transition(element, transitions) {
+    function applyTransition(element, transitions) {
       if (typeof transitions !== "undefined") {
         element.style.transition = transitions.join(", ");
       }
     }
 
     //Check if any callbacks need to be run
-    function callback(callbacks, target) {
+    function applyCallback(callbacks, target) {
       if (typeof callbacks === "function" && finishedCallbacks.indexOf(callbacks) === -1) {
         callbacks(target);
         finishedCallbacks.push(callbacks);
@@ -320,81 +306,49 @@
     }
 
 
-    //Resets the element to its default style
-    function resetElement(element) {
-      //Kind of rough but it works
-      element.style = "";
+    //Reset animation
+    function animationReset() {
+      applyAnimation(
+        _self.element,
+        _self.animation.initial.styles
+      );
+      tick = 0;
+      finishedCallbacks = [];
+      _self.data.action = 0;
     }
 
     //Clear Animation
-    function killAnim() {
-      //window.clearInterval(_self.interval);
+    function animationKill() {
       if (!_self.options.retainEndState) {
         resetElement(_self.element);
       }
     }
+
   };
 
   //Pause Animation
   microAnimate.prototype.pause = function() {
-    this.data.nextFrameAction = "pause";
-    this.data.isPaused = true;
+    this.data.action = 1;
   };
   //Resume paused Animation
   microAnimate.prototype.unpause = function() {
-    this.data.nextFrameAction = "unpause";
-    this.data.isPaused = false;
-    window.clearInterval(this.interval);
+    this.data.action = 2;
   };
 
   //Stop & Reset Animation
   microAnimate.prototype.stop = function() {
-    //window.clearInterval(this.interval);
-    this.data.nextFrameAction = "stop";
-    this.element.style = "";
+    this.data.action = "stop";
+    window.clearInterval(this.interval);
+    elementReset(this.element);
   };
 
 
 
-  /*
-   * Internal Polyfills
-   */
-
-
-  //rAF is supported in pretty much every current browser, but for older ones there is this polyfill:
-
-  // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-  // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
-  // requestAnimationFrame polyfill by Erik Möller. fixes from Paul Irish and Tino Zijdel
-  // MIT license
-
-  //Edited to ES6
-  /*(function() {
-    var lastTime = 0;
-    var vendors = ['ms', 'moz', 'webkit', 'o'];
-    for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-      window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
-      window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame'] ||
-        window[vendors[x] + 'CancelRequestAnimationFrame'];
-    }
-
-    if (!window.requestAnimationFrame)
-      window.requestAnimationFrame = function(callback, element) {
-        var currTime = new Date().getTime();
-        var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-        var id = window.setTimeout(() => {
-            callback(currTime + timeToCall);
-          },
-          timeToCall);
-        lastTime = currTime + timeToCall;
-        return id;
-      };
-
-    if (!window.cancelAnimationFrame)
-      window.cancelAnimationFrame = function(id) {
-        clearTimeout(id);
-      };
-  }());*/
+  //Resets the element to its default style
+  function elementReset(element) {
+    //Kind of rough but it works
+    element.style = "";
+  }
 
 
   //Export microAnimate to global scope

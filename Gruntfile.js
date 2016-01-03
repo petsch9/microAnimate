@@ -12,8 +12,7 @@ module.exports = function(grunt) {
         },
         options: {
           compress: {
-            drop_console: true,
-            hoist_vars: true
+            drop_console: true
           }
         }
       },
@@ -26,8 +25,7 @@ module.exports = function(grunt) {
             drop_console: true,
             screw_ie8: true,
             unsafe: true,
-            unsafe_comps: true,
-            hoist_vars: true
+            unsafe_comps: true
           }
         }
       },
@@ -48,68 +46,56 @@ module.exports = function(grunt) {
       dist: {
         options: {
           patterns: [{
-            match: /options/g,
-            replacement: 'a'
-          }, {
-            match: /element/g,
-            replacement: 'b'
-          }, {
-            match: /duration/g,
-            replacement: 'c'
-          }, {
-            match: /ticklength/g,
-            replacement: 'd'
-          }, {
-            match: /totalTicks/g,
-            replacement: 'e'
-          }, {
-            match: /animation/g,
-            replacement: 'f'
-          }, {
-            match: /interval/g,
-            replacement: 'g'
-          }, {
             match: /ease/g,
-            replacement: 'h'
-          }, {
-            match: /retainEndState/g,
-            replacement: 'i'
-          }, {
-            match: /styles/g,
-            replacement: 'j'
-          }, {
-            match: /transition/g,
-            replacement: 'k'
-          }, {
-            match: /callback/g,
-            replacement: 'l'
-          }, {
+            replacement: 'a'
+          },{
+            match: /ticks/g,
+            replacement: 'b'
+          },{
             match: /initial/g,
-            replacement: 'm'
-          }, {
-            match: /current/g,
-            replacement: 'n'
-          }, {
-            match: /max/g,
-            replacement: 'o'
-          },  {
-            match: /data/g,
-            replacement: 'p'
-          },  {
-            match: /nextFrameAction/g,
-            replacement: 'q'
-          },  {
-            match: /isPaused/g,
-            replacement: 'r'
-          },  {
-            match: /loop/g,
-            replacement: 's'
-          }, {
+            replacement: 'c'
+          },{
+            match: /styles/g,
+            replacement: 'd'
+          },{
             match: /nextAnim/g,
-            replacement: 't'
-          },  {
+            replacement: 'f'
+          },{
             match: /timeDifference/g,
-            replacement: 'u'
+            replacement: 'h'
+          },{
+            match: /\.callback/g,
+            replacement: '.k'
+          },{
+            match: /element/g,
+            replacement: 'l'
+          },{
+            match: /options/g,
+            replacement: 'm'
+          },{
+            match: /data/g,
+            replacement: 'n'
+          },{
+            match: /\.animation/g,
+            replacement: '.o'
+          },{
+            match: /\.interval/g,
+            replacement: 'p'
+          },{
+            match: /ticklength/g,
+            replacement: 'q'
+          },{
+            match: /\.current/g,
+            replacement: '.r'
+          },{
+            match: /\.action/g,
+            replacement: '.s'
+          },{
+            match: /\.max/g,
+            replacement: '.t'
+          },{
+            match: /\.loop/g,
+            replacement: '.u'
           }]
         },
         files: {
