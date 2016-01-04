@@ -37,7 +37,7 @@ module.exports = function(grunt) {
         },
       },demo: {
         files: {
-          'demo/microAnimate.js': 'src/microAnimate.js',
+          'demo/microAnimate.js': 'dist/microAnimate.js',
         },
       },
     },
