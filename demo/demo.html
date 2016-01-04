@@ -1,0 +1,353 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>microAnimate Demo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .category {
+      width: 100%;
+    }
+    .container{
+      width:33.333%;
+      height:100%;
+      float:left;
+    }
+    .container:nth-child(1){
+      background-color:#555;
+    }  .container:nth-child(3){
+        background-color:#ddd;
+      }
+
+    .container h2 ,.container p{
+    color:#fff;
+    padding:20px;
+    }
+    .container button{
+      padding:10px;
+      margin:20px;
+    }
+    hr{
+      border: 2px dashed #555;
+      margin:0;
+    }
+    .element {
+      width: 300px;
+      height: 300px;
+      text-align: center;
+      font-size: 1.5em;
+      margin: 50px auto;
+    }
+
+    #elem3 {
+      position: relative;
+      width: 100px;
+      height: 100px;
+    }
+  </style>
+  <script src="microAnimate.js"></script>
+</head>
+
+<body>
+  <!--<div class="category">
+    <div class="container">
+      <h2>Basic looped Animation</h2>
+      <p></p>
+    </div>
+    <div class="container">
+      <div class="element" id="elem1"></div>
+    </div>
+    <div class="container">
+      <pre>
+        <code>
+        var animation_1 = new Anim(
+          document.getElementById("elem1"), {
+            "0%": [
+              ["border", "5px solid #333"],
+              ["border-radius", "0"],
+              ["background-color", "#fff"],
+              ["color", "#333"],
+              ["line-height", "300px"]
+            ],
+            "100%": [
+              ["border", "5px solid #333"],
+              ["border-radius", "0"],
+              ["background-color", "#fff"],
+              ["color", "#333"],
+              ["line-height", "300px"]
+            ]
+          }, {
+            duration: 2000,
+            ease: false,
+            retainEndState: true,
+            loop: true
+          }
+        );
+
+    animation_1.start()
+        </code>
+      </pre>
+    </div>
+  </div>
+    <hr>
+    <div class="category">
+      <div class="container">
+        <h2>Complex looped Animation</h2>
+        <p>with callbacks and easing</p>
+      </div>
+      <div class="container">
+        <div class="element" id="elem2">Blink</div>
+      </div>
+      <div class="container">
+        <pre>
+          <code>
+            var animation_2 = new Anim(
+              document.getElementById("elem2"), {
+                "0%": [
+                  ["border", "5px solid #333"],
+                  ["border-radius", "0"],
+                  ["background-color", "red"],
+                  ["color", "#bbb"]
+                ],
+                "100%": [
+                  ["border", "10px solid #333"],
+                  ["border-radius", "20px"],
+                  ["background-color", "blue"],
+                  ["color", "#fff"]
+                ],
+                "100%": [
+                  ["border", "15px solid #333"],
+                  ["border-radius", "100px"],
+                  ["background-color", "green"],
+                  ["color", "#999"]
+                ]
+              }, {
+                duration: 2000,
+                ease: false,
+                retainEndState: true,
+                loop: false
+              }
+            );
+          </code>
+        </pre>
+      </div>
+    </div>
+      <hr>-->
+      <div class="category">
+        <div class="container">
+          <h2>Complex looped Animation</h2>
+          <p>with callbacks and easing</p>
+          <button onclick="animation_3.pause()">Pause</button>
+          <button onclick="animation_3.unpause()">Unpause</button>
+        </div>
+        <div class="container">
+          <div class="element" id="elem3">Blink</div>
+        </div>
+        <div class="container">
+          <pre>
+            <code>
+            var animation_3 = new Anim(
+              document.getElementById("elem3"), {
+                "0%": [
+                  ["border", "5px solid #333"],
+                  ["border-radius", "0"],
+                  ["background-color", "#fff"],
+                  ["color", "#333"],
+                  ["transform", "translate(0,0) rotate(0deg)"],
+                  ["line-height", "300px"],
+                  function() {
+                    document.getElementById("elem3").innerHTML = "Blink";
+                  }
+                ],
+                "25%": [
+                  ["border", "5px solid #333"],
+                  ["border-radius", "0"],
+                  ["background-color", "#fff"],
+                  ["color", "#333"],
+                  ["transform", "translate(100px,0) rotate(90deg)"],
+                  ["line-height", "300px"],
+                  function() {
+                    document.getElementById("elem3").innerHTML = "Bounce";
+                  }
+                ],
+                "50%": [
+                  ["border", "10px solid #ddd"],
+                  ["border-radius", "50px"],
+                  ["background-color", "#555"],
+                  ["color", "#9c9"],
+                  ["transform", "translate(100px,100px) rotate(0deg)"],
+                  ["line-height", "300px"],
+                  function() {
+                    document.getElementById("elem3").innerHTML = "Beat";
+                  }
+                ],
+                "75%": [
+                  ["border", "5px solid #ddd"],
+                  ["border-radius", "0"],
+                  ["background-color", "#555"],
+                  ["transform", "translate(0,100px) rotate(90deg)"],
+                  ["color", "#c99"],
+                  ["line-height", "300px"],
+                  function() {
+                    document.getElementById("elem3").innerHTML = "Break";
+                  }
+                ],
+                "100%": [
+                  ["border", "5px solid #333"],
+                  ["border-radius", "0"],
+                  ["background-color", "#fff"],
+                  ["transform", "translate(0,0) rotate(0deg)"],
+                  ["color", "#333"],
+                  ["line-height", "300px"]
+                ]
+              }, {
+                duration: 2000,
+                ticklength: 25,
+                ease: "ease-in",
+                retainEndState: true,
+                loop: true
+              }
+            );
+
+        animation_3.start()
+            </code>
+          </pre>
+        </div>
+  </div>
+
+
+  <script>
+  /*  var animation_1 = new Anim(
+      document.getElementById("elem1"), {
+        "0%": [
+          ["border", "5px solid #333"],
+          ["border-radius", "0"],
+          ["background-color", "red"],
+          ["color", "#bbb"]
+        ],
+        "100%": [
+          ["border", "10px solid #333"],
+          ["border-radius", "20px"],
+          ["background-color", "blue"],
+          ["color", "#fff"]
+        ],
+        "100%": [
+          ["border", "15px solid #333"],
+          ["border-radius", "100px"],
+          ["background-color", "green"],
+          ["color", "#999"]
+        ]
+      }, {
+        duration: 2000,
+        ease: false,
+        retainEndState: true,
+        loop: true
+      }
+    );
+
+  animation_1.start()
+
+
+  var animation_2 = new Anim(
+    document.getElementById("elem2"), {
+      "0%": [
+        ["border", "5px solid #333"],
+        ["border-radius", "0"],
+        ["background-color", "red"],
+        ["color", "#bbb"]
+      ],
+      "100%": [
+        ["border", "10px solid #333"],
+        ["border-radius", "20px"],
+        ["background-color", "blue"],
+        ["color", "#fff"]
+      ],
+      "100%": [
+        ["border", "15px solid #333"],
+        ["border-radius", "100px"],
+        ["background-color", "green"],
+        ["color", "#999"]
+      ]
+    }, {
+      duration: 2000,
+      ease: false,
+      retainEndState: true,
+      loop: false
+    }
+  );*/
+
+
+    var animation_3 = new Anim(
+      document.getElementById("elem3"), {
+        "0%": [
+          ["border", "5px solid #333"],
+          ["border-radius", "0"],
+          ["background-color", "#fff"],
+          ["color", "#333"],
+          ["transform", "translate(0,0) rotate(0deg)"],
+          ["line-height", "300px"],
+          function() {
+            document.getElementById("elem3").innerHTML = "Blink";
+          }
+        ],
+        "25%": [
+          ["border", "5px solid #333"],
+          ["border-radius", "0"],
+          ["background-color", "#fff"],
+          ["color", "#333"],
+          ["transform", "translate(100px,0) rotate(90deg)"],
+          ["line-height", "300px"],
+          function() {
+            document.getElementById("elem3").innerHTML = "Bounce";
+          }
+        ],
+        "50%": [
+          ["border", "10px solid #ddd"],
+          ["border-radius", "50px"],
+          ["background-color", "#555"],
+          ["color", "#9c9"],
+          ["transform", "translate(100px,100px) rotate(0deg)"],
+          ["line-height", "300px"],
+          function() {
+            document.getElementById("elem3").innerHTML = "Beat";
+          }
+        ],
+        "75%": [
+          ["border", "5px solid #ddd"],
+          ["border-radius", "0"],
+          ["background-color", "#555"],
+          ["transform", "translate(0,100px) rotate(90deg)"],
+          ["color", "#c99"],
+          ["line-height", "300px"],
+          function() {
+            document.getElementById("elem3").innerHTML = "Break";
+          }
+        ],
+        "100%": [
+          ["border", "5px solid #333"],
+          ["border-radius", "0"],
+          ["background-color", "#fff"],
+          ["transform", "translate(0,0) rotate(0deg)"],
+          ["color", "#333"],
+          ["line-height", "300px"]
+        ]
+      }, {
+        duration: 2000,
+        ticklength: 25,
+        ease: "ease-in",
+        retainEndState: true,
+        loop: true
+      }
+    );
+
+animation_3.start()
+
+  </script>
+</body>
+
+</html>
