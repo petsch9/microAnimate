@@ -16,7 +16,7 @@
     //Constants
     this.data = {
       //Ticklength constant (default: 30)
-      ticklength: 30,
+      ticklength: 16,
       //Action, can be: 0=nothing, 1=pause or 2=unpause
       action: 0
     };
@@ -34,36 +34,32 @@
      * Generate Style, Transition and Callbacks from the animation property
      */
     function processAnimation(animation, data, options) {
-      const animationKeys = Object.keys(animation);
       let result = {
-        initial: {}
-      };
+          initial: {},
+          index: Object.keys(animation)
+        };
 
 
       //Initial State
       result.initial.styles = mapAnimation(animation[0], animation[0]);
 
       //Go over each percentage given
-      animationKeys.forEach((key, index) => {
-        //Generates a new key to fit certain intervals
-        const newKey = dynamicKey(key, data);
-        result[newKey] = {};
+      result.index.forEach((key, index) => {
+        result.index.push(key);
+        result[key] = {};
 
-        //Only try to create a transition if the Animation isnt finished yet
-        if (animationKeys[index] !== "100") {
-          //The next key of the Animation
-          const animationNext = animation[animationKeys[index + 1]],
-            //Time between the current and the next key
-            timeDifference = (
-              (options.duration * (animationKeys[index + 1] - animationKeys[index]) / 100) / 1000
-            ) + "s";
+        //The next key of the Animation
+        const animationNext = animation[result.index[index + 1]],
+          //Time between the current and the next key
+          timeDifference = ((
+            (options.duration * (result.index[index + 1] - result.index[index]) / 100) / 1000
+          ) || 0) + "s";
 
-
-          result[newKey].styles = mapAnimation(animation[key], animationNext);
-          result[newKey].transition = mapTransition(animation[key], animationNext, timeDifference, options.ease);
-        }
-        result[newKey].callback = mapCallback(animation[key]);
+        result[key].styles = mapAnimation(animation[key]);
+        result[key].transition = mapTransition(animation[key], timeDifference, options.ease);
+        result[key].callback = mapCallback(animation[key]);
       });
+
       return result;
 
 
@@ -72,10 +68,10 @@
        */
 
       //Maps Animation
-      function mapAnimation(animation, animationNext) {
+      function mapAnimation(animation) {
         let result = [];
 
-        animationNext.forEach((style) => {
+        animation.forEach((style) => {
           if (typeof style === "object") {
             result.push(style);
           }
@@ -86,7 +82,7 @@
 
 
       //Maps Transitions
-      function mapTransition(animation, animationNext, timeDifference, ease) {
+      function mapTransition(animation, timeDifference, ease) {
         let result = [],
           //Additional transition values like "ease"
           add = "";
@@ -106,9 +102,9 @@
             let transition;
 
             //Transition String
-            if (typeof animationNext !== "undefined") {
+            if (typeof animation !== "undefined") {
 
-              transition = animationNext[index][0] + " " + timeDifference + add;
+              transition = animation[index][0] + " " + timeDifference + add;
             } else {
               transition = "";
             }
@@ -130,24 +126,6 @@
             result = fn;
           }
         });
-        return result;
-      }
-
-      //Change keys to fit strange intervals
-      function dynamicKey(key, data) {
-        let result;
-
-        //if Key is Zero, dont change!
-        if (key !== 0) {
-          //Smooth key to fit current interval
-          result = Math.round(
-            Math.round((key / 100) * data.ticks) *
-            (100 / data.ticks)
-          );
-          if (result > 100) {
-            result = 100;
-          }
-        }
         return result;
       }
 
@@ -201,14 +179,17 @@
   //Main Animation play-method
   microAnimate.prototype.start = function() {
     let _self = this,
+    animationBuffer=_self.animation,
       tick = 0,
       relativePercentage = 0,
-      //All executed callbacks are index to make sure callbacks dont execute twice
+      //All executed callbacks are indexed to make sure callbacks dont execute twice
       finishedCallbacks = [],
-      //Loop object that stores the current an the maximum iterations
+      //Loop object that stores the current and the maximum iterations
       loop = {
         current: 1,
-        max: (typeof this.options.loop === "boolean" ? (this.options.loop ? Infinity : 0) : this.options.loop)
+        max: (typeof this.options.loop === "boolean" ? (
+          this.options.loop ? Infinity : 0
+        ) : this.options.loop)
       };
 
 
@@ -229,6 +210,7 @@
       if (relativePercentage > 100) {
         //Check if given loops have been run and if the animation an be terminated
         if (loop.current < loop.max) {
+          elementReset(_self.element);
           animationReset();
           loop.current++;
           animationLoop();
@@ -237,21 +219,38 @@
           animationKill();
         }
       } else {
-        //console.log("Animation Progress: " + relativePercentage + "%");
+        console.log("Animation Progress: " + relativePercentage + "%");
         //Animate if there is data for the current percentage
-        if (typeof _self.animation[relativePercentage] !== "undefined") {
-          applyTransition(
-            _self.element,
-            _self.animation[relativePercentage].transition
-          );
-          applyAnimation(
-            _self.element,
-            _self.animation[relativePercentage].styles
-          );
+        //console.log(animationBuffer.index);
+        if(animationBuffer.index.indexOf((relativePercentage).toString())>-1){
+          let anim=animationBuffer.index.shift();
+
+          //console.log(relativePercentage);
+          //console.log(animationBuffer.index.shift());
+        //if (typeof animationBuffer[relativePercentage] !== "undefined") {
+          if (relativePercentage < 100) {
+            //Check how the next frame should look like
+            let nextFrame = animationBuffer.index[animationBuffer.index.indexOf(
+              (relativePercentage).toString()
+            ) + 1];
+            console.log(animationBuffer[nextFrame]);
+            applyTransition(
+              _self.element,
+              animationBuffer[nextFrame].transition
+            );
+            applyAnimation(
+              _self.element,
+              animationBuffer[nextFrame].styles
+            );
+          }
+          console.log(animationBuffer);
+          console.log(relativePercentage);
+          if(typeof animationBuffer[relativePercentage].callback !== "undefined"){
           applyCallback(
-            _self.animation[relativePercentage].callback,
+            animationBuffer[relativePercentage].callback,
             _self
           );
+        }
         }
 
         tick++;
@@ -312,7 +311,7 @@
     function animationReset() {
       applyAnimation(
         _self.element,
-        _self.animation.initial.styles
+        animationBuffer.initial.styles
       );
       tick = 0;
       finishedCallbacks = [];
@@ -333,6 +332,7 @@
     this.data.action = 1;
   };
   //Resume paused Animation
+  //TODO Breaks if not paused
   microAnimate.prototype.unpause = function() {
     this.data.action = 2;
   };
@@ -351,7 +351,10 @@
   //Resets the element to its default style
   function elementReset(element) {
     //Kind of rough but it works
-    element.style = "";
+    //console.log(element);
+    //  console.log(element.style);
+    //  console.log(element.style.cssText);
+    element.style.cssText = "";
   }
 
 
