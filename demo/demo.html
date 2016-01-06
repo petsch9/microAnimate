@@ -241,7 +241,7 @@
           ["color", "#333"],
           ["transform", "translate(0,0) rotate(0deg)"],
           function() {
-            document.getElementById("elem3").innerHTML = "Blink";
+            document.getElementById("elem3").innerHTML = "0";console.log("03");
           }
         ],
         "25%": [
@@ -251,7 +251,7 @@
           ["color", "#333"],
           ["transform", "translate(100px,0) rotate(90deg)"],
           function() {
-            document.getElementById("elem3").innerHTML = "Bounce";
+            document.getElementById("elem3").innerHTML = "25";console.log("25");
           }
         ],
         "50%": [
@@ -261,29 +261,32 @@
           ["color", "#9c9"],
           ["transform", "translate(100px,100px) rotate(0deg)"],
           function() {
-            document.getElementById("elem3").innerHTML = "Beat";
+            document.getElementById("elem3").innerHTML = "50";console.log("50");
           }
         ],
         "75%": [
           ["border", "5px solid #ddd"],
-          ["border-radius", "0"],
+          ["border-radius", "10px"],
           ["background-color", "#555"],
           ["transform", "translate(0,100px) rotate(90deg)"],
           ["color", "#c99"],
           function() {
-            document.getElementById("elem3").innerHTML = "Break";
+            document.getElementById("elem3").innerHTML = "75";console.log("75");
           }
         ],
         "to": [
-          ["border", "5px solid #333"],
+          ["border", "10px solid #333"],
           ["border-radius", "0"],
-          ["background-color", "#fff"],
+          ["background-color", "red"],
           ["transform", "translate(0,0) rotate(0deg)"],
-          ["color", "#333"]
+          ["color", "#333"],
+          function() {
+            document.getElementById("elem3").innerHTML = "100";console.log("100");
+          }
         ]
       }, {
-        duration: 2000,
-        ease: "ease",
+        duration: 1500,
+        ease: false,
         retainEndState: true,
         loop: true
       }

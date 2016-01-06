@@ -35,9 +35,9 @@
      */
     function processAnimation(animation, data, options) {
       let result = {
-          initial: {},
-          index: Object.keys(animation)
-        };
+        initial: {},
+        index: Object.keys(animation)
+      };
 
 
       //Initial State
@@ -45,15 +45,13 @@
 
       //Go over each percentage given
       result.index.forEach((key, index) => {
-        result.index.push(key);
         result[key] = {};
 
         //The next key of the Animation
         const animationNext = animation[result.index[index + 1]],
-          //Time between the current and the next key
-          timeDifference = ((
-            (options.duration * (result.index[index + 1] - result.index[index]) / 100) / 1000
-          ) || 0) + "s";
+          //Time between the current and the next key (or the two before if not given)
+          timeDifference =
+          (((options.duration * (result.index[index] - result.index[index - 1]) / 100) / 1000) || 0) + "s";
 
         result[key].styles = mapAnimation(animation[key]);
         result[key].transition = mapTransition(animation[key], timeDifference, options.ease);
@@ -179,11 +177,11 @@
   //Main Animation play-method
   microAnimate.prototype.start = function() {
     let _self = this,
-    animationBuffer=_self.animation,
-      tick = 0,
-      relativePercentage = 0,
-      //All executed callbacks are indexed to make sure callbacks dont execute twice
-      finishedCallbacks = [],
+      animationBuffer = _self.animation,
+      tick,
+      relativePercentage,
+      indexMin,
+      indexList,
       //Loop object that stores the current and the maximum iterations
       loop = {
         current: 1,
@@ -191,7 +189,7 @@
           this.options.loop ? Infinity : 0
         ) : this.options.loop)
       };
-
+    animationReset();
 
     //Reset Element
     elementReset(_self.element);
@@ -219,60 +217,45 @@
           animationKill();
         }
       } else {
-        console.log("Animation Progress: " + relativePercentage + "%");
+        //console.log("Animation Progress: " + relativePercentage + "%");
         //Animate if there is data for the current percentage
-        //console.log(animationBuffer.index);
-        if(animationBuffer.index.indexOf((relativePercentage).toString())>-1){
-          let anim=animationBuffer.index.shift();
+        if (relativePercentage > indexMin) {
+          //Remove smallest Index and recalc
+          indexList.shift();
+          indexMin = Math.min.apply(Math, indexList);
+          //Get the data of this frame
+          let currentFrame = animationBuffer[indexMin];
 
-          //console.log(relativePercentage);
-          //console.log(animationBuffer.index.shift());
-        //if (typeof animationBuffer[relativePercentage] !== "undefined") {
-          if (relativePercentage < 100) {
-            //Check how the next frame should look like
-            let nextFrame = animationBuffer.index[animationBuffer.index.indexOf(
-              (relativePercentage).toString()
-            ) + 1];
-            console.log(animationBuffer[nextFrame]);
-            applyTransition(
-              _self.element,
-              animationBuffer[nextFrame].transition
-            );
-            applyAnimation(
-              _self.element,
-              animationBuffer[nextFrame].styles
+
+          applyTransition(
+            _self.element,
+            currentFrame.transition
+          );
+
+          applyAnimation(
+            _self.element,
+            currentFrame.styles
+          );
+
+          if (typeof currentFrame.callback !== "undefined") {
+            applyCallback(
+              currentFrame.callback,
+              _self
             );
           }
-          console.log(animationBuffer);
-          console.log(relativePercentage);
-          if(typeof animationBuffer[relativePercentage].callback !== "undefined"){
-          applyCallback(
-            animationBuffer[relativePercentage].callback,
-            _self
-          );
-        }
         }
 
         tick++;
         //Check if theres anything to do before going to the next frame (pausing etc.)
-        if (_self.data.action !== 0) {
-          //Pause Controller
-          if (_self.data.action === 1) {
-            //Wait for unpause
-            _self.interval = window.setInterval(() => {
-              if (_self.data.action === 2) {
-                //Yay we can continue
-                _self.data.action = 0;
-                window.clearInterval(_self.interval);
-                window.requestAnimationFrame(animationLoop);
-              }
-            }, _self.data.ticklength * 2);
-          }
-        } else {
+        if (_self.data.action === 0) {
           //Ooooor everything is nice and quiet, and we can continue our animation
           _self.interval = window.setTimeout(() => {
             window.requestAnimationFrame(animationLoop);
           }, _self.data.ticklength);
+        } else if (_self.data.action === 1) {
+          //Pause Controller
+          //Wait for unpause
+          animationPause();
         }
       }
     }
@@ -299,23 +282,23 @@
     }
 
     //Check if any callbacks need to be run
-    function applyCallback(callbacks, target) {
-      if (typeof callbacks === "function" && finishedCallbacks.indexOf(callbacks) === -1) {
-        callbacks(target);
-        finishedCallbacks.push(callbacks);
-      }
+    function applyCallback(callback, target) {
+        callback(target);
     }
 
 
     //Reset animation
     function animationReset() {
+      tick = 0;
+      relativePercentage = 0;
+      indexMin = 0;
+      indexList = Array.from(animationBuffer.index);
+      _self.data.action = 0;
+
       applyAnimation(
         _self.element,
         animationBuffer.initial.styles
       );
-      tick = 0;
-      finishedCallbacks = [];
-      _self.data.action = 0;
     }
 
     //Clear Animation
@@ -325,6 +308,17 @@
       }
     }
 
+    function animationPause() {
+      _self.interval = window.setInterval(() => {
+        if (_self.data.action === 2) {
+          //Yay we can continue
+          _self.data.action = 0;
+          window.clearInterval(_self.interval);
+          window.requestAnimationFrame(animationLoop);
+        }
+      }, _self.data.ticklength * 2);
+    }
+
   };
 
   //Pause Animation
@@ -332,9 +326,10 @@
     this.data.action = 1;
   };
   //Resume paused Animation
-  //TODO Breaks if not paused
   microAnimate.prototype.unpause = function() {
-    this.data.action = 2;
+    if (this.data.action === 1) {
+      this.data.action = 2;
+    }
   };
 
   //Stop & Reset Animation
@@ -351,9 +346,6 @@
   //Resets the element to its default style
   function elementReset(element) {
     //Kind of rough but it works
-    //console.log(element);
-    //  console.log(element.style);
-    //  console.log(element.style.cssText);
     element.style.cssText = "";
   }
 
