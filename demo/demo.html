@@ -12,14 +12,17 @@
 
     .category {
       width: 100%;
-      height:400px;
+      height: 600px;
     }
-    .container{
-      height:220px;
+
+    .container {
+      height: 220px;
     }
-    .container,.text {
+
+    .container,
+    .text {
       width: 400px;
-      margin:50px auto;
+      margin: 50px auto;
     }
 
     .text h2,
@@ -32,18 +35,35 @@
       margin: 20px 5px;
     }
 
-    .element {
+    hr {
+      margin: 20px auto;
+      width: 500px;
+      border: 1px solid #555;
     }
+
+    .element {}
 
     #elem1 {
       width: 100px;
       height: 100px;
-      line-height:100px;
-      text-align:center;
-      border:5px solid #333;
+      line-height: 100px;
+      text-align: center;
+      border: 5px solid #333;
       border-radius: 0;
       background-color: #fff;
-      color:#333;
+      color: #333;
+    }
+
+    #elem2 {
+      width: 150px;
+      height: 150px;
+      background-color: #555;
+      border-radius: 100px;
+      border: 10px dotted #fff;
+      margin: auto;
+      line-height: 145px;
+      color: #fff;
+      text-align: center;
     }
   </style>
   <script src="microAnimate.js"></script>
@@ -56,7 +76,7 @@
     </div>
     <div class="text">
       <h2>Looped Animation</h2>
-      <p>with callbacks and easing</p>
+      <p>with callbacks</p>
       <button onclick="animation_1.start()">Start</button>
       <button onclick="animation_1.stop()">Stop</button>
       <br>
@@ -64,7 +84,21 @@
       <button onclick="animation_1.unpause()">Unpause</button>
     </div>
   </div>
-
+  <hr>
+  <div class="category">
+    <div class="container">
+      <div class="element" id="elem2"></div>
+    </div>
+    <div class="text">
+      <h2>Looped Animation</h2>
+      <p>with easing</p>
+      <button onclick="animation_2.start()">Start</button>
+      <button onclick="animation_2.stop()">Stop</button>
+      <br>
+      <button onclick="animation_2.pause()">Pause</button>
+      <button onclick="animation_2.unpause()">Unpause</button>
+    </div>
+  </div>
   <script>
     var animation_1 = new Anim(
       document.getElementById("elem1"), {
@@ -131,7 +165,52 @@
       }
     );
 
-    animation_1.start()
+    animation_1.start();
+
+
+
+
+    var animation_2 = new Anim(
+      document.getElementById("elem2"), {
+        "from": [
+          ["transform", "rotate(0deg)"],
+          function() {
+            document.getElementById("elem2").innerHTML = "0%";
+          }
+        ],
+        "15%": [
+          ["transform", "rotate(90deg)"],
+          function() {
+            document.getElementById("elem2").innerHTML = "15%";
+          }
+        ],
+        "40%": [
+          ["transform", "rotate(-90deg)"],
+          function() {
+            document.getElementById("elem2").innerHTML = "40%";
+          }
+        ],
+        "65%": [
+          ["transform", "rotate(-45deg)"],
+          function() {
+            document.getElementById("elem2").innerHTML = "65%";
+          }
+        ],
+        "to": [
+          ["transform", "rotate(0deg)"],
+          function() {
+            document.getElementById("elem2").innerHTML = "100%";
+          }
+        ]
+      }, {
+        duration: 5000,
+        ease: "ease-in-out",
+        retainEndState: true,
+        loop: true
+      }
+    );
+
+    animation_2.start();
   </script>
 </body>
 

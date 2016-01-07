@@ -13,21 +13,21 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       loop: 0
     } : arguments[2];
 
-    //Process the Animation/Options and store them in "this"
+    //Process the Animation/Options and store them
     this.element = element;
     this.options = options;
     //Constants
     this.data = {
-      //Ticklength constant (default: 30)
+      //Ticklength constant (default: 16)
       ticklength: 16,
-      //Action, can be: 0=nothing, 1=pause or 2=unpause
+      //Action can be: 0=nothing, 1=pause or 2=unpause
       action: 0
     };
     this.data.ticks = Math.ceil(options.duration / this.data.ticklength);
     this.animation = processAnimation(preprocessAnimation(animation), this.data, this.options);
     this.interval = null;
 
-    /*The Animation get calculated before it gets executed for better performance
+    /*The Animation gets calculated before when constructed for better performance
      * Generate Style, Transition and Callbacks from the animation property
      */
     function processAnimation(animation, data, options) {
@@ -64,6 +64,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       function mapAnimation(animation) {
         var result = [];
 
+        //Iterate over styles
         animation.forEach(function (style) {
           if ((typeof style === "undefined" ? "undefined" : _typeof(style)) === "object") {
             result.push(style);
@@ -82,18 +83,25 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
         //Ease if easing is enabled (either default or given easing)
         if (ease === true || typeof ease === "string") {
           if (typeof ease === "string") {
+            //if a string is given, use the string
             add = " " + ease;
           } else {
+            //if a true is given, use default easing
             add = " ease";
           }
+        } else {
+          //if a false is given, use no easing
+          add = " linear";
         }
 
+        //Iterate over styles
         animation.forEach(function (style, index) {
           if ((typeof style === "undefined" ? "undefined" : _typeof(style)) === "object") {
             var transition = undefined;
 
             //Transition String
             if (typeof animation !== "undefined") {
+              //Generate CSS transition
               transition = animation[index][0] + " " + timeDifference + add;
             } else {
               transition = "";
@@ -109,6 +117,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       function mapCallback(animation) {
         var result = undefined;
 
+        //Iterate over callbacks
         animation.forEach(function (fn) {
           if (typeof fn === "function") {
             result = fn;
@@ -121,7 +130,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
     /* Sort and format Animation object
      *
      * + Converts "from" to "0" and "to" to "100"
-     * + converts "100" to 100
+     * + converts "100" to 100 etc.
      *
      */
     function preprocessAnimation(animation) {
@@ -161,6 +170,11 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
   //Main Animation play-method
   microAnimate.prototype.start = function () {
+    //Reset if the Animation is called while its already running
+    if (this.interval !== null) {
+      animationKill.apply(this, [true]);
+    }
+
     var _self = this,
         animationBuffer = _self.animation,
         tick = undefined,
@@ -195,7 +209,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
           animationLoop();
         } else {
           //terminate animation
-          animationKill();
+          animationKill.apply(this, [false]);
         }
       } else {
         //console.log("Animation Progress: " + relativePercentage + "%");
@@ -251,8 +265,8 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
     }
 
     //Check if any callbacks need to be run
-    function applyCallback(callback, target) {
-      callback(target);
+    function applyCallback(callback, context) {
+      callback(context);
     }
 
     //Reset animation
@@ -264,13 +278,6 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       _self.data.action = 0;
 
       applyAnimation(_self.element, animationBuffer.initial.styles);
-    }
-
-    //Clear Animation
-    function animationKill() {
-      if (!_self.options.retainEndState) {
-        elementReset(_self.element);
-      }
     }
 
     function animationPause() {
@@ -298,8 +305,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
   //Stop & Reset Animation
   microAnimate.prototype.stop = function () {
-    window.clearInterval(this.interval);
-    elementReset(this.element);
+    animationKill.apply(this, [true]);
   };
 
   /*
@@ -310,6 +316,16 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
   function elementReset(element) {
     //Kind of rough but it works
     element.style.cssText = "";
+  }
+
+  //Clear Animation
+  function animationKill(forceReset) {
+    console.log(this);
+    window.clearInterval(this.interval);
+    this.interval = null;
+    if (!this.options.retainEndState || forceReset) {
+      elementReset(this.element);
+    }
   }
 
   //Export full namespace to global scope

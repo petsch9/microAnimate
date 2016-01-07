@@ -10,14 +10,14 @@
       loop: 0
     }
   ) {
-    //Process the Animation/Options and store them in "this"
+    //Process the Animation/Options and store them
     this.element = element;
     this.options = options;
     //Constants
     this.data = {
-      //Ticklength constant (default: 30)
+      //Ticklength constant (default: 16)
       ticklength: 16,
-      //Action, can be: 0=nothing, 1=pause or 2=unpause
+      //Action can be: 0=nothing, 1=pause or 2=unpause
       action: 0
     };
     this.data.ticks = Math.ceil(options.duration / this.data.ticklength);
@@ -30,7 +30,7 @@
 
 
 
-    /*The Animation get calculated before it gets executed for better performance
+    /*The Animation gets calculated before when constructed for better performance
      * Generate Style, Transition and Callbacks from the animation property
      */
     function processAnimation(animation, data, options) {
@@ -71,6 +71,7 @@
       function mapAnimation(animation) {
         let result = [];
 
+        //Iterate over styles
         animation.forEach((style) => {
           if (typeof style === "object") {
             result.push(style);
@@ -90,19 +91,25 @@
         //Ease if easing is enabled (either default or given easing)
         if (ease === true || typeof ease === "string") {
           if (typeof ease === "string") {
+            //if a string is given, use the string
             add = " " + ease;
           } else {
+              //if a true is given, use default easing
             add = " ease";
           }
+        }else{
+          //if a false is given, use no easing
+          add = " linear";
         }
 
-
+        //Iterate over styles
         animation.forEach((style, index) => {
           if (typeof style === "object") {
             let transition;
 
             //Transition String
             if (typeof animation !== "undefined") {
+              //Generate CSS transition
               transition = animation[index][0] + " " + timeDifference + add;
             } else {
               transition = "";
@@ -120,6 +127,7 @@
       function mapCallback(animation) {
         let result;
 
+        //Iterate over callbacks
         animation.forEach((fn) => {
           if (typeof fn === "function") {
             result = fn;
@@ -133,7 +141,7 @@
     /* Sort and format Animation object
      *
      * + Converts "from" to "0" and "to" to "100"
-     * + converts "100" to 100
+     * + converts "100" to 100 etc.
      *
      */
     function preprocessAnimation(animation) {
@@ -177,6 +185,11 @@
 
   //Main Animation play-method
   microAnimate.prototype.start = function() {
+    //Reset if the Animation is called while its already running
+    if(this.interval!==null){
+      animationKill.apply(this,[true]);
+    }
+
     let _self = this,
       animationBuffer = _self.animation,
       tick,
@@ -213,7 +226,7 @@
           animationLoop();
         } else {
           //terminate animation
-          animationKill();
+          animationKill.apply(this,[false]);
         }
       } else {
         //console.log("Animation Progress: " + relativePercentage + "%");
@@ -280,8 +293,8 @@
     }
 
     //Check if any callbacks need to be run
-    function applyCallback(callback, target) {
-      callback(target);
+    function applyCallback(callback, context) {
+      callback(context);
     }
 
     //Reset animation
@@ -298,12 +311,6 @@
       );
     }
 
-    //Clear Animation
-    function animationKill() {
-      if (!_self.options.retainEndState) {
-        elementReset(_self.element);
-      }
-    }
 
     function animationPause() {
       _self.interval = window.setInterval(() => {
@@ -331,8 +338,7 @@
 
   //Stop & Reset Animation
   microAnimate.prototype.stop = function() {
-    window.clearInterval(this.interval);
-    elementReset(this.element);
+    animationKill.apply(this,[true]);
   };
 
 
@@ -344,6 +350,16 @@
   function elementReset(element) {
     //Kind of rough but it works
     element.style.cssText = "";
+  }
+
+  //Clear Animation
+  function animationKill(forceReset) {
+    console.log(this);
+    window.clearInterval(this.interval);
+    this.interval=null;
+    if (!this.options.retainEndState || forceReset) {
+      elementReset(this.element);
+    }
   }
 
 
