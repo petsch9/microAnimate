@@ -232,14 +232,15 @@
         //console.log("Animation Progress: " + relativePercentage + "%");
         //Animate if there is data for the current percentage
         if (relativePercentage > indexMin) {
-          //Get the data of this and the next frame
+          //Get the data of the current and the next frame
           let currentFrame = animationBuffer[indexMin],
             nextFrame = animationBuffer[indexList[1]] || animationBuffer[0];
           //Remove smallest Index and recalc
           indexList.shift();
+          //Get smallest value of Array
           indexMin = Math.min.apply(Math, indexList);
 
-
+          //Animate the Style for the NEXT frame
           applyTransition(
             _self.element,
             nextFrame.transition
@@ -248,9 +249,10 @@
             _self.element,
             nextFrame.styles
           );
-          if (typeof nextFrame.callback !== "undefined") {
+          //Run the callback for the CURRENT frame
+          if (typeof currentFrame.callback !== "undefined") {
             applyCallback(
-              nextFrame.callback,
+              currentFrame.callback,
               _self
             );
           }

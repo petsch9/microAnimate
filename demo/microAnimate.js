@@ -220,12 +220,13 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
               nextFrame = animationBuffer[indexList[1]] || animationBuffer[0];
           //Remove smallest Index and recalc
           indexList.shift();
+          //Get smallest value of Array
           indexMin = Math.min.apply(Math, indexList);
 
           applyTransition(_self.element, nextFrame.transition);
           applyAnimation(_self.element, nextFrame.styles);
-          if (typeof nextFrame.callback !== "undefined") {
-            applyCallback(nextFrame.callback, _self);
+          if (typeof currentFrame.callback !== "undefined") {
+            applyCallback(currentFrame.callback, _self);
           }
         }
 

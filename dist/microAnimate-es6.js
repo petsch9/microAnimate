@@ -237,6 +237,7 @@
             nextFrame = animationBuffer[indexList[1]] || animationBuffer[0];
           //Remove smallest Index and recalc
           indexList.shift();
+          //Get smallest value of Array
           indexMin = Math.min.apply(Math, indexList);
 
 
@@ -248,9 +249,9 @@
             _self.element,
             nextFrame.styles
           );
-          if (typeof nextFrame.callback !== "undefined") {
+          if (typeof currentFrame.callback !== "undefined") {
             applyCallback(
-              nextFrame.callback,
+              currentFrame.callback,
               _self
             );
           }
