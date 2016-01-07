@@ -92,10 +92,13 @@ module.exports = function(grunt) {
           },{
             match: /max/g,
             replacement: 'e'
-          },
-          {
+          },{
             match: /\.action/g,
             replacement: '.s'
+          },
+          {
+            match: /\index/g,
+            replacement: 't'
           }]
         },
         files: {
