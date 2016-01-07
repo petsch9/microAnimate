@@ -19,7 +19,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
     //Constants
     this.data = {
       //Ticklength constant (default: 30)
-      ticklength: 30,
+      ticklength: 16,
       //Action, can be: 0=nothing, 1=pause or 2=unpause
       action: 0
     };
@@ -31,33 +31,29 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
      * Generate Style, Transition and Callbacks from the animation property
      */
     function processAnimation(animation, data, options) {
-      var animationKeys = Object.keys(animation);
       var result = {
-        initial: {}
+        initial: {},
+        index: Object.keys(animation)
       };
 
       //Initial State
       result.initial.styles = mapAnimation(animation[0], animation[0]);
 
       //Go over each percentage given
-      animationKeys.forEach(function (key, index) {
-        //Generates a new key to fit certain intervals
-        var newKey = dynamicKey(key, data);
-        result[newKey] = {};
+      result.index.forEach(function (key, index) {
+        result[key] = {};
 
-        //Only try to create a transition if the Animation isnt finished yet
-        if (animationKeys[index] !== "100") {
-          //The next key of the Animation
-          var animationNext = animation[animationKeys[index + 1]],
+        //The next key of the Animation
+        var animationNext = animation[result.index[index + 1]],
 
-          //Time between the current and the next key
-          timeDifference = options.duration * (animationKeys[index + 1] - animationKeys[index]) / 100 / 1000 + "s";
+        //Time between the current and the next key (or the two before if not given)
+        timeDifference = (options.duration * (result.index[index] - result.index[index - 1]) / 100 / 1000 || 0) + "s";
 
-          result[newKey].styles = mapAnimation(animation[key], animationNext);
-          result[newKey].transition = mapTransition(animation[key], animationNext, timeDifference, options.ease);
-        }
-        result[newKey].callback = mapCallback(animation[key]);
+        result[key].styles = mapAnimation(animation[key]);
+        result[key].transition = mapTransition(animation[key], timeDifference, options.ease);
+        result[key].callback = mapCallback(animation[key]);
       });
+
       return result;
 
       /*
@@ -65,10 +61,10 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
        */
 
       //Maps Animation
-      function mapAnimation(animation, animationNext) {
+      function mapAnimation(animation) {
         var result = [];
 
-        animationNext.forEach(function (style) {
+        animation.forEach(function (style) {
           if ((typeof style === "undefined" ? "undefined" : _typeof(style)) === "object") {
             result.push(style);
           }
@@ -77,7 +73,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       }
 
       //Maps Transitions
-      function mapTransition(animation, animationNext, timeDifference, ease) {
+      function mapTransition(animation, timeDifference, ease) {
         var result = [],
 
         //Additional transition values like "ease"
@@ -97,9 +93,8 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
             var transition = undefined;
 
             //Transition String
-            if (typeof animationNext !== "undefined") {
-
-              transition = animationNext[index][0] + " " + timeDifference + add;
+            if (typeof animation !== "undefined") {
+              transition = animation[index][0] + " " + timeDifference + add;
             } else {
               transition = "";
             }
@@ -121,28 +116,12 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
         });
         return result;
       }
-
-      //Change keys to fit strange intervals
-      function dynamicKey(key, data) {
-        var result = undefined;
-
-        //if Key is Zero, dont change!
-        if (key !== 0) {
-          //Smooth key to fit current interval
-          result = Math.round(Math.round(key / 100 * data.ticks) * (100 / data.ticks));
-          if (result > 100) {
-            result = 100;
-          }
-        }
-        return result;
-      }
     }
 
     /* Sort and format Animation object
      *
      * + Converts "from" to "0" and "to" to "100"
      * + converts "100" to 100
-     * + fixes unreachable percentages
      *
      */
     function preprocessAnimation(animation) {
@@ -160,7 +139,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
         }
       });
 
-      //Sort Keys in a new Array (we need to ".keys() " again because we modiefied the keys before)
+      //Sort Keys in a new Array (we need to ".keys() " again because we modified the keys before)
       optimizedKeys = Object.keys(animation);
       optimizedKeys.forEach(function (keyName, index) {
         optimizedKeys[index] = parseInt(keyName.replace("%", ""));
@@ -183,13 +162,13 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
   //Main Animation play-method
   microAnimate.prototype.start = function () {
     var _self = this,
-        tick = 0,
-        relativePercentage = 0,
+        animationBuffer = _self.animation,
+        tick = undefined,
+        relativePercentage = undefined,
+        indexMin = undefined,
+        indexList = undefined,
 
-    //All executed callbacks are index to make sure callbacks dont execute twice
-    finishedCallbacks = [],
-
-    //Loop object that stores the current an the maximum iterations
+    //Loop object that stores the current and the maximum iterations
     loop = {
       current: 1,
       max: typeof this.options.loop === "boolean" ? this.options.loop ? Infinity : 0 : this.options.loop
@@ -207,9 +186,10 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       relativePercentage = Math.round(100 / _self.data.ticks * tick);
 
       //Remove the interval if over 100% else Animate
-      if (relativePercentage > 100) {
+      if (indexList.length === 0) {
         //Check if given loops have been run and if the animation an be terminated
         if (loop.current < loop.max) {
+          elementReset(_self.element);
           animationReset();
           loop.current++;
           animationLoop();
@@ -220,32 +200,32 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       } else {
         //console.log("Animation Progress: " + relativePercentage + "%");
         //Animate if there is data for the current percentage
-        if (typeof _self.animation[relativePercentage] !== "undefined") {
-          applyTransition(_self.element, _self.animation[relativePercentage].transition);
-          applyAnimation(_self.element, _self.animation[relativePercentage].styles);
-          applyCallback(_self.animation[relativePercentage].callback, _self);
+        if (relativePercentage > indexMin) {
+          //Get the data of this and the next frame
+          var currentFrame = animationBuffer[indexMin],
+              nextFrame = animationBuffer[indexList[1]] || animationBuffer[0];
+          //Remove smallest Index and recalc
+          indexList.shift();
+          indexMin = Math.min.apply(Math, indexList);
+
+          applyTransition(_self.element, nextFrame.transition);
+          applyAnimation(_self.element, nextFrame.styles);
+          if (typeof nextFrame.callback !== "undefined") {
+            applyCallback(nextFrame.callback, _self);
+          }
         }
 
         tick++;
         //Check if theres anything to do before going to the next frame (pausing etc.)
-        if (_self.data.action !== 0) {
-          //Pause Controller
-          if (_self.data.action === 1) {
-            //Wait for unpause
-            _self.interval = window.setInterval(function () {
-              if (_self.data.action === 2) {
-                //Yay we can continue
-                _self.data.action = 0;
-                window.clearInterval(_self.interval);
-                window.requestAnimationFrame(animationLoop);
-              }
-            }, _self.data.ticklength * 2);
-          }
-        } else {
+        if (_self.data.action === 0) {
           //Ooooor everything is nice and quiet, and we can continue our animation
           _self.interval = window.setTimeout(function () {
             window.requestAnimationFrame(animationLoop);
           }, _self.data.ticklength);
+        } else if (_self.data.action === 1) {
+          //Pause Controller
+          //Wait for unpause
+          animationPause();
         }
       }
     }
@@ -271,19 +251,19 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
     }
 
     //Check if any callbacks need to be run
-    function applyCallback(callbacks, target) {
-      if (typeof callbacks === "function" && finishedCallbacks.indexOf(callbacks) === -1) {
-        callbacks(target);
-        finishedCallbacks.push(callbacks);
-      }
+    function applyCallback(callback, target) {
+      callback(target);
     }
 
     //Reset animation
     function animationReset() {
-      applyAnimation(_self.element, _self.animation.initial.styles);
       tick = 0;
-      finishedCallbacks = [];
+      relativePercentage = 0;
+      indexMin = 0;
+      indexList = Array.from(animationBuffer.index);
       _self.data.action = 0;
+
+      applyAnimation(_self.element, animationBuffer.initial.styles);
     }
 
     //Clear Animation
@@ -291,6 +271,17 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       if (!_self.options.retainEndState) {
         elementReset(_self.element);
       }
+    }
+
+    function animationPause() {
+      _self.interval = window.setInterval(function () {
+        if (_self.data.action === 2) {
+          //Yay we can continue
+          _self.data.action = 0;
+          window.clearInterval(_self.interval);
+          window.requestAnimationFrame(animationLoop);
+        }
+      }, _self.data.ticklength * 2);
     }
   };
 
@@ -300,7 +291,9 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
   };
   //Resume paused Animation
   microAnimate.prototype.unpause = function () {
-    this.data.action = 2;
+    if (this.data.action === 1) {
+      this.data.action = 2;
+    }
   };
 
   //Stop & Reset Animation
@@ -316,7 +309,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
   //Resets the element to its default style
   function elementReset(element) {
     //Kind of rough but it works
-    element.style = "";
+    element.style.cssText = "";
   }
 
   //Export full namespace to global scope
