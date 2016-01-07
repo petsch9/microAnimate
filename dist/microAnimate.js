@@ -189,7 +189,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       relativePercentage = Math.round(100 / _self.data.ticks * tick);
 
       //Remove the interval if over 100% else Animate
-      if (relativePercentage > 100) {
+      if (indexList.length === 0) {
         //Check if given loops have been run and if the animation an be terminated
         if (loop.current < loop.max) {
           elementReset(_self.element);
@@ -204,16 +204,15 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
         //console.log("Animation Progress: " + relativePercentage + "%");
         //Animate if there is data for the current percentage
         if (relativePercentage > indexMin) {
+          //Get the data of this and the next frame
+          var currentFrame = animationBuffer[indexMin],
+              nextFrame = animationBuffer[indexList[1]] || animationBuffer[0];
           //Remove smallest Index and recalc
           indexList.shift();
           indexMin = Math.min.apply(Math, indexList);
-          //Get the data of this frame
-          var currentFrame = animationBuffer[indexMin];
 
-          applyTransition(_self.element, currentFrame.transition);
-
-          applyAnimation(_self.element, currentFrame.styles);
-
+          applyTransition(_self.element, nextFrame.transition);
+          applyAnimation(_self.element, nextFrame.styles);
           if (typeof currentFrame.callback !== "undefined") {
             applyCallback(currentFrame.callback, _self);
           }

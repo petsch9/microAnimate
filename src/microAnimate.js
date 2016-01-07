@@ -51,7 +51,8 @@
         const animationNext = animation[result.index[index + 1]],
           //Time between the current and the next key (or the two before if not given)
           timeDifference =
-          (((options.duration * (result.index[index] - result.index[index - 1]) / 100) / 1000) || 0) + "s";
+          (((options.duration * (result.index[index] - result.index[index - 1]) / 100) / 1000) ||
+            0) + "s";
 
         result[key].styles = mapAnimation(animation[key]);
         result[key].transition = mapTransition(animation[key], timeDifference, options.ease);
@@ -205,7 +206,7 @@
       relativePercentage = Math.round((100 / _self.data.ticks) * tick);
 
       //Remove the interval if over 100% else Animate
-      if (relativePercentage > 100) {
+      if (indexList.length === 0) {
         //Check if given loops have been run and if the animation an be terminated
         if (loop.current < loop.max) {
           elementReset(_self.element);
@@ -220,23 +221,23 @@
         //console.log("Animation Progress: " + relativePercentage + "%");
         //Animate if there is data for the current percentage
         if (relativePercentage > indexMin) {
+          //Get the data of this and the next frame
+          let currentFrame = animationBuffer[indexMin],
+            nextFrame = animationBuffer[indexList[1]] || animationBuffer[0];
           //Remove smallest Index and recalc
           indexList.shift();
           indexMin = Math.min.apply(Math, indexList);
-          //Get the data of this frame
-          let currentFrame = animationBuffer[indexMin];
+
 
 
           applyTransition(
             _self.element,
-            currentFrame.transition
+            nextFrame.transition
           );
-
           applyAnimation(
             _self.element,
-            currentFrame.styles
+            nextFrame.styles
           );
-
           if (typeof currentFrame.callback !== "undefined") {
             applyCallback(
               currentFrame.callback,
@@ -283,7 +284,7 @@
 
     //Check if any callbacks need to be run
     function applyCallback(callback, target) {
-        callback(target);
+      callback(target);
     }
 
 
