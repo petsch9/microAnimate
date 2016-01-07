@@ -62,6 +62,7 @@
       return result;
 
 
+
       /*
        * Mapping Sub-functions
        */
@@ -102,7 +103,6 @@
 
             //Transition String
             if (typeof animation !== "undefined") {
-
               transition = animation[index][0] + " " + timeDifference + add;
             } else {
               transition = "";
@@ -134,7 +134,6 @@
      *
      * + Converts "from" to "0" and "to" to "100"
      * + converts "100" to 100
-     * + fixes unreachable percentages
      *
      */
     function preprocessAnimation(animation) {
@@ -153,7 +152,7 @@
       });
 
 
-      //Sort Keys in a new Array (we need to ".keys() " again because we modiefied the keys before)
+      //Sort Keys in a new Array (we need to ".keys() " again because we modified the keys before)
       optimizedKeys = Object.keys(animation);
       optimizedKeys.forEach((keyName, index) => {
         optimizedKeys[index] = parseInt(keyName.replace("%", ""));
@@ -164,6 +163,7 @@
       optimizedKeys.forEach((keyName) => {
         result[keyName] = animation[keyName + "%"];
       });
+
 
       return result;
     }
@@ -190,7 +190,6 @@
           this.options.loop ? Infinity : 0
         ) : this.options.loop)
       };
-    animationReset();
 
     //Reset Element
     elementReset(_self.element);
@@ -198,7 +197,6 @@
 
     //Start the animation
     animationLoop(_self);
-
 
 
     //Main Animation Interval
@@ -229,7 +227,6 @@
           indexMin = Math.min.apply(Math, indexList);
 
 
-
           applyTransition(
             _self.element,
             nextFrame.transition
@@ -238,9 +235,9 @@
             _self.element,
             nextFrame.styles
           );
-          if (typeof currentFrame.callback !== "undefined") {
+          if (typeof nextFrame.callback !== "undefined") {
             applyCallback(
-              currentFrame.callback,
+              nextFrame.callback,
               _self
             );
           }
@@ -286,7 +283,6 @@
     function applyCallback(callback, target) {
       callback(target);
     }
-
 
     //Reset animation
     function animationReset() {

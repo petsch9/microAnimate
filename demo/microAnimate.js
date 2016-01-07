@@ -94,7 +94,6 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
             //Transition String
             if (typeof animation !== "undefined") {
-
               transition = animation[index][0] + " " + timeDifference + add;
             } else {
               transition = "";
@@ -123,7 +122,6 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
      *
      * + Converts "from" to "0" and "to" to "100"
      * + converts "100" to 100
-     * + fixes unreachable percentages
      *
      */
     function preprocessAnimation(animation) {
@@ -141,7 +139,7 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
         }
       });
 
-      //Sort Keys in a new Array (we need to ".keys() " again because we modiefied the keys before)
+      //Sort Keys in a new Array (we need to ".keys() " again because we modified the keys before)
       optimizedKeys = Object.keys(animation);
       optimizedKeys.forEach(function (keyName, index) {
         optimizedKeys[index] = parseInt(keyName.replace("%", ""));
@@ -175,7 +173,6 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
       current: 1,
       max: typeof this.options.loop === "boolean" ? this.options.loop ? Infinity : 0 : this.options.loop
     };
-    animationReset();
 
     //Reset Element
     elementReset(_self.element);
@@ -213,8 +210,8 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
           applyTransition(_self.element, nextFrame.transition);
           applyAnimation(_self.element, nextFrame.styles);
-          if (typeof currentFrame.callback !== "undefined") {
-            applyCallback(currentFrame.callback, _self);
+          if (typeof nextFrame.callback !== "undefined") {
+            applyCallback(nextFrame.callback, _self);
           }
         }
 

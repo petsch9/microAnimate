@@ -28,8 +28,8 @@
     }
 
     .text button {
-      padding: 10px;
-      margin: 20px;
+      padding: 5px;
+      margin: 20px 5px;
     }
 
     .element {
@@ -40,6 +40,10 @@
       height: 100px;
       line-height:100px;
       text-align:center;
+      border:5px solid #333;
+      border-radius: 0;
+      background-color: #fff;
+      color:#333;
     }
   </style>
   <script src="microAnimate.js"></script>
@@ -51,8 +55,11 @@
       <div class="element" id="elem1">Blink</div>
     </div>
     <div class="text">
-      <h2>Complex looped Animation</h2>
+      <h2>Looped Animation</h2>
       <p>with callbacks and easing</p>
+      <button onclick="animation_1.start()">Start</button>
+      <button onclick="animation_1.stop()">Stop</button>
+      <br>
       <button onclick="animation_1.pause()">Pause</button>
       <button onclick="animation_1.unpause()">Unpause</button>
     </div>
@@ -120,7 +127,7 @@
         duration: 2000,
         ease: false,
         retainEndState: true,
-        loop: false
+        loop: true
       }
     );
 
