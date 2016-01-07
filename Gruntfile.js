@@ -95,10 +95,15 @@ module.exports = function(grunt) {
           },{
             match: /\.action/g,
             replacement: '.s'
-          },
-          {
-            match: /\index/g,
+          },{
+            match: /index/g,
             replacement: 't'
+          },{
+            match: /retainEndState/g,
+            replacement: 'u'
+          },{
+            match: /loop/g,
+            replacement: 'v'
           }]
         },
         files: {

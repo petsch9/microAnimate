@@ -72,7 +72,7 @@
         let result = [];
 
         //Iterate over styles
-        animation.forEach((style) => {
+        animation.forEach(style => {
           if (typeof style === "object") {
             result.push(style);
           }
@@ -128,7 +128,7 @@
         let result;
 
         //Iterate over callbacks
-        animation.forEach((fn) => {
+        animation.forEach(fn => {
           if (typeof fn === "function") {
             result = fn;
           }
@@ -149,7 +149,7 @@
         result = {};
 
       //Go over keys and replace "from" and "to"
-      Object.keys(animation).forEach((keyName) => {
+      Object.keys(animation).forEach(keyName => {
         if (keyName === "from") {
           animation["0%"] = animation[keyName];
           delete animation[keyName];
@@ -168,7 +168,7 @@
       optimizedKeys.sort();
 
       //Sort Object
-      optimizedKeys.forEach((keyName) => {
+      optimizedKeys.forEach(keyName => {
         result[keyName] = animation[keyName + "%"];
       });
 
