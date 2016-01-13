@@ -8,7 +8,7 @@ module.exports = function(grunt) {
     uglify: {
       main: {
         files: {
-          'dist/microAnimate.min.js': 'dist/microAnimate.js'
+          'dist/microAnimate.min.js': '.tmp/microAnimate.js'
         },
         options: {
           compress: {
@@ -18,7 +18,7 @@ module.exports = function(grunt) {
       },
       unsafe: {
         files: {
-          'dist/microAnimate.min.unsafe.js': 'dist/microAnimate.min.js'
+          'dist/microAnimate.min.unstable.js': '.tmp/microAnimate.replaced.js'
         },
         options: {
           compress: {
@@ -31,83 +31,94 @@ module.exports = function(grunt) {
       },
     },
     copy: {
-      main: {
+      pre: {
         files: {
           'dist/microAnimate-es6.js': 'src/microAnimate.js',
         },
-      },demo: {
+      },
+      main: {
         files: {
-          'demo/microAnimate.js': 'dist/microAnimate.js',
+          'dist/microAnimate.js': '.tmp/microAnimate.js',
+          'dist/microAnimate.js.map': '.tmp/microAnimate.js.map',
+        },
+      },
+      demo: {
+        files: {
+          'demo/microAnimate.js': 'dist/microAnimate.min.unstable.js',
         },
       },
     },
     /* UglifyJS doesnt uglify properties, so we do it by hand*
-    * The properties left out are not included for a reason, adding them will break functionality
-    */
+     * The properties left out are not included for a reason, adding them will break functionality
+     * UPDATE: yep we shouldnt do this, too much work
+     */
     replace: {
       dist: {
         options: {
           patterns: [{
             match: /ease/g,
             replacement: 'a'
-          },{
-            match: /ticks/g,
+          }, {
+            match: /tickTotal/g,
             replacement: 'b'
-          },{
+          }, {
             match: /initial/g,
             replacement: 'c'
-          },{
+          }, {
             match: /styles/g,
             replacement: 'd'
-          },{
+          }, {
             match: /animationNext/g,
             replacement: 'f'
-          },{
+          }, {
             match: /timeDifference/g,
             replacement: 'h'
-          },{
+          }, {
             match: /\.callback/g,
             replacement: '.k'
-          },{
+          }, {
             match: /element/g,
             replacement: 'l'
-          },{
-            match: /options/g,
-            replacement: 'm'
-          },{
-            match: /data/g,
-            replacement: 'n'
-          },{
+          }, {
+            match: /\.options/g,
+            replacement: '.m'
+          }, {
+            match: /\.data/g,
+            replacement: '.n'
+          }, {
             match: /\.animation/g,
             replacement: '.o'
-          },{
+          }, {
             match: /\.interval/g,
             replacement: '.p'
-          },{
-            match: /ticklength/g,
+          }, {
+            match: /tickLength/g,
             replacement: 'q'
-          },{
+          }, {
             match: /current/g,
             replacement: 'r'
-          },{
+          }, {
             match: /max/g,
             replacement: 'e'
-          },{
+          }, {
             match: /\.action/g,
             replacement: '.s'
-          },{
+          }, {
             match: /index/g,
             replacement: 't'
-          },{
+          }, {
             match: /retainEndState/g,
             replacement: 'u'
-          },{
-            match: /loop/g,
+          }, {
+            match: /tickCurrent/g,
             replacement: 'v'
+          }, {
+            match: /relativePercentage/g,
+            replacement: 'x'
           }]
         },
         files: {
-          'dist/microAnimate.min.js': 'dist/microAnimate.js'
+          '.tmp/microAnimate.replaced.js': '.tmp/microAnimate.js'
         }
       }
     },
@@ -118,17 +129,20 @@ module.exports = function(grunt) {
       },
       dist: {
         files: {
-          'dist/microAnimate.js': 'src/microAnimate.js'
+          '.tmp/microAnimate.js': 'src/microAnimate.js'
         }
       }
     }
   });
 
   grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-babel');
-    grunt.loadNpmTasks('grunt-replace');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-babel');
+  grunt.loadNpmTasks('grunt-replace');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
 
-  grunt.registerTask('default', ['copy:main', 'babel:dist','copy:demo', 'replace:dist', 'uglify:unsafe', 'uglify:main']);
+  grunt.registerTask('default', ['copy:pre', 'babel:dist',
+    'replace:dist', 'uglify:unsafe', 'uglify:main',
+    'copy:main', 'copy:demo'
+  ]);
 
 };

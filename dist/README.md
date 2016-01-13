@@ -18,7 +18,7 @@ Main Versions
 
 Unstable Versions
 -------------
- - microAnimate.min.unsafe.js:
+ - microAnimate.min.unstable.js:
 
  Minified with UglifyJS with unsafe settings \& mangled Properies. Even smaller, but is likely to contain bugs.
  Good for Developement _(THIS IS BUGGY, YOU HAVE BEEN WARNED)_.
