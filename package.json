@@ -1,25 +1,23 @@
 {
-  "name": "microanimate",
+  "name": "esanimate",
   "version": "1.1.4",
   "description": "microAnimate is a tiny(~2.5kb) JavaScript Library with a CSS-like animation syntax",
   "main": "microAnimate.js",
-  "scripts": {
-    "test": "Anim(element,animation,options)"
-  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TheBinaryBee/microAnimate.git"
+    "url": "git+https://github.com/FelixRilling/esAnimate.git"
   },
   "keywords": [
-    "dom",
-    "micro"
+    "esanimate",
+    "es",
+    "animate"
   ],
   "author": "Felix Rilling",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/TheBinaryBee/microAnimate/issues"
+    "url": "https://github.com/FelixRilling/esAnimate/issues"
   },
-  "homepage": "https://github.com/TheBinaryBee/microAnimate#readme",
+  "homepage": "https://github.com/FelixRilling/esAnimate#readme",
   "devDependencies": {
     "babel-preset-es2015": "^6.3.13",
     "grunt": "^0.4.5",
