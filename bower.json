@@ -1,0 +1,22 @@
+{
+  "name": "esanimate",
+  "description": "esAnimate is a tiny(~2.5kb) JavaScript Library with a CSS-like animation syntax",
+  "main": "dist/esAnimate.js",
+  "authors": [
+    "Felix Rilling"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "esanimate",
+    "es",
+    "animate"
+  ],
+  "homepage": "https://github.com/FelixRilling/esAnimate",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

@@ -1,8 +1,8 @@
 {
   "name": "esanimate",
   "version": "1.1.4",
-  "description": "microAnimate is a tiny(~2.5kb) JavaScript Library with a CSS-like animation syntax",
-  "main": "microAnimate.js",
+  "description": "esAnimate is a tiny(~2.5kb) JavaScript Library with a CSS-like animation syntax",
+  "main": "dist/esAnimate.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/FelixRilling/esAnimate.git"
