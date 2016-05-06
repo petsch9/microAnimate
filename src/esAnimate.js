@@ -1,8 +1,8 @@
 "use strict";
 
-(function(window) {
+(function (window) {
 
-    let microAnimate = class {
+    let esAnimate = class {
         constructor(
             element,
             animation = {},
@@ -31,8 +31,6 @@
             );
             this.interval = null;
 
-
-
             /*The Animation gets calculated before when constructed for better performance
              * Generate Style, Transition and Callbacks from the animation property
              */
@@ -41,7 +39,6 @@
                     initial: {},
                     index: Object.keys(animation)
                 };
-
 
                 //Initial State
                 result.initial.styles = mapAnimation(animation[0], animation[0]);
@@ -64,8 +61,6 @@
 
                 return result;
 
-
-
                 /*
                  * Mapping Sub-functions
                  */
@@ -82,8 +77,6 @@
                     });
                     return result;
                 }
-
-
 
                 //Maps Transitions
                 function mapTransition(animation, timeDifference, ease) {
@@ -125,7 +118,6 @@
                     return result;
                 }
 
-
                 //Maps Callbacks
                 function mapCallback(animation) {
                     let result;
@@ -162,7 +154,6 @@
                     }
                 });
 
-
                 //Sort Keys in a new Array (we need to ".keys() " again because we modified the keys before)
                 optimizedKeys = Object.keys(animation);
                 optimizedKeys.forEach((keyName, index) => {
@@ -175,12 +166,10 @@
                     result[keyName] = animation[keyName + "%"];
                 });
 
-
                 return result;
             }
 
         }
-
 
         /*
          * Internal functions
@@ -200,7 +189,6 @@
                 this.reset(this.element);
             }
         }
-
 
         /*
          * Animation methods
@@ -227,7 +215,7 @@
                     ) : this.options.loop)
                 };
             _data.relativePercentage = 0;
-            _data.tickCurrent=0;
+            _data.tickCurrent = 0;
 
             //Reset Element
             this.reset(_self.element);
@@ -235,7 +223,6 @@
 
             //Start the animation
             animationLoop(_self);
-
 
             //Main Animation Interval
             function animationLoop() {
@@ -299,7 +286,6 @@
                 }
             }
 
-
             /*
              * Sub-functions used in the active Animation
              */
@@ -339,7 +325,6 @@
                 );
             }
 
-
             function animationPause() {
                 _self.interval = window.setInterval(() => {
                     if (_data.action === 2) {
@@ -355,8 +340,8 @@
 
         //Pause Animation
         pause() {
-                this.data.action = 1;
-            }
+            this.data.action = 1;
+        }
 
         //Resume paused Animation
         unpause() {
@@ -371,10 +356,9 @@
         }
     };
 
-
     //Export full namespace to global scope
-    window.microAnimate = microAnimate;
+    window.esAnimate = esAnimate;
     //Exports shorter namespace
-    window.Anim = microAnimate;
+    window.Anim = esAnimate;
 
 })(window);
